@@ -2,23 +2,30 @@
 import { IUserRepository } from '../../../../domain/repositories/IUserRepository';
 import { UserModel } from '../model/userModel';
 import { User } from '../../../../domain/aggregate/User';
-import { Repository } from 'typeorm';
 import { UserMapper } from '../mapper/userMapper';
+import { AppDataSource } from '../dataSource';
+import { Repository } from 'typeorm';
 
-export class UserRepository extends Repository<UserModel> implements IUserRepository {
+export class typeOrmUserRepository implements IUserRepository {
+  userModel: Repository<UserModel> ;
+  
+  constructor(){
+    this.userModel=AppDataSource.getRepository(UserModel)
+  }
+  
   async createUser(user: User): Promise<User> {
     const userModel = UserMapper.toModel(user);
-    await this.save(userModel);
+    await this.userModel.save(userModel);
     return UserMapper.toDomain(userModel);
   }
 
   async deleteUser(user: User): Promise<boolean> {
-    const result = await this.delete(user.getId());
+    const result = await this.userModel.delete(user.getId());
     return Boolean(result.affected);
   }
 
   async getByEmail(email: string): Promise<User | false > {
-    const userModel = await this.findOne({ where: { email } });
+    const userModel = await this.userModel.findOne({ where: { email } });
     if (!userModel) {
       return false
     }
@@ -26,7 +33,7 @@ export class UserRepository extends Repository<UserModel> implements IUserReposi
   }
 
   async getById(id: string): Promise<User | false> {
-    const userModel = await this.findOne({ where: { id } });
+    const userModel = await this.userModel.findOne({ where: { id } });
     if (!userModel) {
       return false
     }
@@ -35,7 +42,7 @@ export class UserRepository extends Repository<UserModel> implements IUserReposi
 
   async updateUser(user: User): Promise<User> {
     const userModel = UserMapper.toModel(user);
-    await this.save(userModel);
+    await this.userModel.save(userModel);
     return UserMapper.toDomain(userModel);
   }
 
