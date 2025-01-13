@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column, ManyToOne, ManyToMany, JoinTable, OneToMany, OneToOne } from 'typeorm';
+import { Entity, PrimaryColumn, Column, ManyToOne, ManyToMany, JoinTable, OneToMany, OneToOne, JoinColumn } from 'typeorm';
 import { UserModel } from './userModel';
 import { MetadataModel } from './docmentMetadataModel';
 
@@ -13,10 +13,13 @@ export class DocumentModel {
     @Column({ type: 'bytea' })
     content: Uint8Array;
 
-    @OneToOne(() => MetadataModel, metadata => metadata.document)
-    metaData: MetadataModel;
+    // @OneToOne(() => MetadataModel, metadata => metadata.document)
+    // metaData: MetadataModel;
+    @Column()
+    userId: string;
 
-    @ManyToOne(() => UserModel, user => user.documents)
+    @ManyToOne(() => UserModel, user => user.documents,{}) 
+    @JoinColumn({name:"userId",referencedColumnName:"id"})
     user: UserModel;
 
    

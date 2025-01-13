@@ -1,5 +1,8 @@
 import { DataSource } from "typeorm";
 import { UserModel } from "./model/userModel";
+import { DocumentModel } from "./model/documentModel";
+import { MetadataModel } from "./model/docmentMetadataModel";
+import { TagModel } from "./model/metadataTagModel";
 
 
 export const AppDataSource = new DataSource({
@@ -10,5 +13,9 @@ export const AppDataSource = new DataSource({
       password: String(process.env.DB_PASSWORD),
       database: process.env.DB_NAME,
       synchronize:true,
-      entities:[UserModel]
+      entities:[UserModel,DocumentModel]
+        // MetadataModel,TagModel]
+
     });
+
+    

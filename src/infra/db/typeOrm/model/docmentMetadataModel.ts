@@ -19,6 +19,6 @@ export class MetadataModel {
     @OneToMany(() => TagModel, tags => tags.metadata)
     tags: TagModel[];
 
-    @OneToOne(() => DocumentModel, document => document.metaData)
-    document: DocumentModel;
+    // @OneToOne(() => DocumentModel, document => document.metaData)
+    // document: DocumentModel;
 }

@@ -1,7 +1,5 @@
-import { metadata } from "reflect-metadata/no-conflict";
 import { MetadataModel } from "./docmentMetadataModel";
-import { DocumentModel } from "./documentModel";
-import { JoinTable,Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne} from 'typeorm';
+import { JoinTable,Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn} from 'typeorm';
 
 
 @Entity('tags')
@@ -12,7 +10,10 @@ export class TagModel {
     @Column({ length: 50 })
     name: string;
 
+    @Column({ length: 50 })
+    metaDataId: string;
+
     @ManyToOne(() => MetadataModel, metadata => metadata.tags)
-    @JoinTable()
+    @JoinColumn({name : "metaDataId" ,referencedColumnName : "id" })
     metadata: MetadataModel;
 }

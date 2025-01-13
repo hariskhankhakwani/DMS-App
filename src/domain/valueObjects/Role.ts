@@ -1,5 +1,9 @@
 export type Permission = 'create' | 'read' | 'update' | 'delete';
-export type RoleType = 'admin' | 'user';
+
+export enum RoleType {
+    ADMIN="admin",
+    USER ="user",
+  }
 
 export class Role {
     private readonly type: RoleType;
@@ -59,10 +63,10 @@ export class Role {
     }
 
     public static createAdminRole(): Role {
-        return Role.create('admin');
+        return Role.create(RoleType.ADMIN);
     }
 
     public static createUserRole(): Role {
-        return Role.create('user');
+        return Role.create(RoleType.USER);
     }
 }

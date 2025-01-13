@@ -20,7 +20,7 @@ export class UserModel {
     @Column()
     password: string;
 
-    @Column()
+    @Column({type:'enum', enum:RoleType})
     role: RoleType;
 
     @CreateDateColumn()
