@@ -1,6 +1,4 @@
 import { User } from "../../../../domain/aggregate/User";
-import { Email } from "../../../../domain/valueObjects/Email";
-import { Role } from "../../../../domain/valueObjects/Role";
 import { UserModel } from "../model/userModel";
 
 
