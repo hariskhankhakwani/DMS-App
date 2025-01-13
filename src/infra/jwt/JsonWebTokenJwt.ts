@@ -8,7 +8,7 @@ import { TYPES } from '../di/inversify/types';
 
 
 @injectable()
-export class JwtService implements IJwt {
+export class JsonWebTokenJwt implements IJwt {
     private readonly secretKey: string ;
 
     constructor(
@@ -23,7 +23,7 @@ export class JwtService implements IJwt {
                 this.secretKey
             );
             
-            this.logger.info('JWT token generated successfully');
+            this.logger.debug('JWT token generated successfully');
             return token;
         } catch (error) {
             this.logger.error(`Error generating JWT token: ${error}`);

@@ -21,9 +21,9 @@ export class UserMapper {
     }
 
     static toModel(user: User): UserModel {
-    const userModel =  new UserModel()
-    Object.assign(userModel,user.serialize())
-    return userModel
+        const userModel =  new UserModel()
+        Object.assign(userModel,user.serialize())
+        return userModel
     
     }
         

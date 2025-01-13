@@ -1,6 +1,8 @@
 import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, } from 'typeorm';
 import { DocumentModel } from './documentModel';
+
 import { RoleType } from '../../../../domain/valueObjects/Role';
+
 @Entity('users')
 export class UserModel {
     @PrimaryColumn('uuid')

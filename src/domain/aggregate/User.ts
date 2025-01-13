@@ -125,21 +125,6 @@ export class User {
             throw new Error('Password is too long (maximum 128 characters)');
         }
         
-        const hasUpperCase = /[A-Z]/.test(password);
-        const hasLowerCase = /[a-z]/.test(password);
-        const hasNumbers = /\d/.test(password);
-        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
-        if (!(hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar)) {
-            throw new Error(
-                'Password must contain at least one uppercase letter, one lowercase letter, ' +
-                'one number, and one special character'
-            );
-        }
-
-        if (/(.)\1{2,}/.test(password)) {
-            throw new Error('Password cannot contain repeated characters (more than 2 times in a row)');
-        }
     }
 
     // Serialization methods
