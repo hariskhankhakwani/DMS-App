@@ -13,8 +13,7 @@ export const AppDataSource = new DataSource({
       password: String(process.env.DB_PASSWORD),
       database: process.env.DB_NAME,
       synchronize:true,
-      entities:[UserModel,DocumentModel]
-        // MetadataModel,TagModel]
+      entities:[UserModel,DocumentModel,MetadataModel,TagModel]
 
     });
 

@@ -1,8 +1,9 @@
 import { Entity, PrimaryColumn, Column, ManyToOne, ManyToMany, JoinTable, OneToMany, OneToOne, JoinColumn } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { UserModel } from './userModel';
 import { MetadataModel } from './docmentMetadataModel';
 
-@Entity('documents')
+@Entity("documents")
 export class DocumentModel {
     @PrimaryColumn('uuid')
     id: string;
@@ -13,14 +14,12 @@ export class DocumentModel {
     @Column({ type: 'bytea' })
     content: Uint8Array;
 
-    // @OneToOne(() => MetadataModel, metadata => metadata.document)
-    // metaData: MetadataModel;
-    @Column()
-    userId: string;
+    @OneToOne(() => MetadataModel, metadata => metadata.document)
+    metaData: MetadataModel;
 
-    @ManyToOne(() => UserModel, user => user.documents,{}) 
+    @ManyToOne("UserModel", "documents") 
     @JoinColumn({name:"userId",referencedColumnName:"id"})
-    user: UserModel;
+    user: Relation<UserModel>;
 
    
 }

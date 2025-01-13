@@ -1,9 +1,9 @@
 import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, } from 'typeorm';
-import { DocumentModel } from './documentModel';
+import  { DocumentModel } from './documentModel';
 
 import { RoleType } from '../../../../domain/valueObjects/Role';
 
-@Entity('users')
+@Entity("users")
 export class UserModel {
     @PrimaryColumn('uuid')
     id: string;
@@ -29,6 +29,6 @@ export class UserModel {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @OneToMany(() => DocumentModel, document => document.user)
+    @OneToMany(() => DocumentModel, (document) => document.user)
     documents: DocumentModel[];
 }

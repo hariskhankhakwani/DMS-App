@@ -1,6 +1,6 @@
 import { MetadataModel } from "./docmentMetadataModel";
 import { JoinTable,Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn} from 'typeorm';
-
+import type { Relation} from "typeorm"
 
 @Entity('tags')
 export class TagModel {
@@ -10,10 +10,10 @@ export class TagModel {
     @Column({ length: 50 })
     name: string;
 
-    @Column({ length: 50 })
+    @Column()
     metaDataId: string;
 
-    @ManyToOne(() => MetadataModel, metadata => metadata.tags)
+    @ManyToOne("MetadataModel","tags")
     @JoinColumn({name : "metaDataId" ,referencedColumnName : "id" })
-    metadata: MetadataModel;
+    metadata:Relation<MetadataModel>;
 }
