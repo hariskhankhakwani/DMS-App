@@ -9,7 +9,7 @@ import  type{ ILogger } from '../../app/ports/logger/ILogger';
 @injectable()
 export class UserController {
     constructor(
-        @inject(TYPES.IUserRepository) private userService: UserService,
+        @inject(TYPES.UserService) private userService: UserService,
         @inject(TYPES.ILogger) private logger: ILogger
     ) {}
 

@@ -14,19 +14,19 @@ import type   { ILogger } from "../ports/logger/ILogger";
 export class UserService {
     private userRepository: IUserRepository;
     private hashService: IHashing;
-    private jwtService: IJwt;
+    // private jwtService: IJwt;
     private logger: ILogger;
 
     constructor(
-        @inject( TYPES.ILogger ) logger: ILogger,
+        @inject(TYPES.ILogger)  logger: ILogger,
         @inject( TYPES.IUserRepository ) userRepository: IUserRepository,
-        @inject( TYPES.IHashingService ) hashingService: IHashing,
-        @inject( TYPES.IJwt) jwt: IJwt) 
+        @inject( TYPES.IHashingService ) hashingService: IHashing)
+        // @inject( TYPES.IJwt) jwt: IJwt) 
         {
         this.userRepository = userRepository;
         this.hashService = hashingService;
         this.logger = logger;
-        this.jwtService = jwt;
+        // this.jwtService = jwt;
     }
 
     async registerUser(regUserDto: dto.RegisterUserRequest): Promise<RegisterUserResponse> {

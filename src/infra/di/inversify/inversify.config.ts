@@ -12,19 +12,18 @@ import { UserController } from "../../../presentation/controllers/userController
 import  type { ILogger } from "../../../app/ports/logger/ILogger";
 
 
-export const container = new Container();
-
-// Core Infrastructure Services
-container.bind<IHashing>(TYPES.IHashingService).to(Argon2HashingService)
-container.bind<IJwt>(TYPES.IJwt).to(JsonWebTokenJwt)
-container.bind<ILogger>(TYPES.ILogger).to(PinoLogger)
+const container = new Container();
 
 
-// // Repositories
-container.bind<IUserRepository>(TYPES.IUserRepository).to(typeOrmUserRepository)
 
-// // Application Services
-container.bind<UserService>(UserService).toSelf()
+container.bind<IHashing>(TYPES.IHashingService).to(Argon2HashingService);
+container.bind<IJwt>(TYPES.IJwt).to(JsonWebTokenJwt);
+container.bind<ILogger>(TYPES.ILogger).toConstantValue(new PinoLogger())
+container.bind<IUserRepository>(TYPES.IUserRepository).to(typeOrmUserRepository);
+container.bind<UserController>(UserController).toSelf();
+container.bind<UserService>(TYPES.UserService).to(UserService);
 
-// // Controllers
-container.bind<UserController>(UserController).toSelf()
+
+
+
+export default container;
