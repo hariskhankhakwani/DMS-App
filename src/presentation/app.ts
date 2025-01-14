@@ -6,7 +6,7 @@ import { AppDataSource } from '../infra/db/typeOrm/dataSource';
 const app = express();
 
 
-async() => {await AppDataSource.initialize();}
+
 
 
 app.use(express.json());
