@@ -1,6 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
 import { inject, injectable } from 'inversify';
-import { PinoLogger } from "../../infra/logger/pinoLogger";
 import { TYPES } from '../../infra/di/inversify/types';
 import { UserService } from '../../app/services/userService';
 import  type{ ILogger } from '../../app/ports/logger/ILogger';
