@@ -1,9 +1,9 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../di/inversify/types";
-import { ILogger } from "../../app/ports/logger/ILogger";
-import { IHashing } from "../../app/ports/hashing/IHashing";
-import { hash, verify } from 'argon2';
 
+import type{ IHashing } from "../../app/ports/hashing/IHashing";
+import { hash, verify } from 'argon2';
+import type{ ILogger } from "../../app/ports/logger/ILogger";
 
 @injectable()
 export class Argon2HashingService implements IHashing {

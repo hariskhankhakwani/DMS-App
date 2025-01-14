@@ -1,6 +1,7 @@
-import pino, { Logger as Pino, LoggerOptions } from 'pino';
+import pino, { type Logger as Pino } from 'pino';
+import type{LoggerOptions} from "pino"
 import { injectable } from 'inversify';
-import { ILogger } from '../../app/ports/logger/ILogger';
+import  type{ ILogger } from '../../app/ports/logger/ILogger';
 
 @injectable()
 export class PinoLogger implements ILogger {

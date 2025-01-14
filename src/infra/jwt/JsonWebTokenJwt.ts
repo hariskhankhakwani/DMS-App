@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify';
 import { sign, verify, decode } from 'jsonwebtoken';
-import { IJwt } from '../../app/ports/jwt/IJwt';
-import { ILogger } from '../../app/ports/logger/ILogger';
+import type{ IJwt } from '../../app/ports/jwt/IJwt';
+import  type{ ILogger } from '../../app/ports/logger/ILogger';
 import { JWTAccessTokenPayload } from '../../app/dtos/userDtos';
 import { TYPES } from '../di/inversify/types';
 

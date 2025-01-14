@@ -1,5 +1,5 @@
 
-import { IUserRepository } from '../../../../domain/repositories/IUserRepository';
+import type{ IUserRepository } from '../../../../domain/repositories/IUserRepository';
 import { UserModel } from '../model/userModel';
 import { User } from '../../../../domain/aggregate/User';
 import { UserMapper } from '../mapper/userMapper';

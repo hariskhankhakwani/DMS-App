@@ -5,7 +5,6 @@ export interface IDocumentItem {
     id: string;
     name: string;
     content: Uint8Array;
-    metaData: Metadata;
 }
 
 export class DocumentItem implements IDocumentItem {
@@ -83,7 +82,6 @@ export class DocumentItem implements IDocumentItem {
             id: this.id,
             name: this.name,
             content: this.content,
-            metaData: this.metaData
         };
     }
 
@@ -92,7 +90,6 @@ export class DocumentItem implements IDocumentItem {
         document.id = obj.id;
         document.setName(obj.name);
         document.setContent(obj.content);
-        document.metaData = obj.metaData;
         
         return document;
     }

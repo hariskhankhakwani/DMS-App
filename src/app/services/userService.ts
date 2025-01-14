@@ -1,15 +1,15 @@
 import * as dto from "../dtos/userDtos"
-import { IUserRepository } from "../../domain/repositories/IUserRepository";
+import type{ IUserRepository } from "../../domain/repositories/IUserRepository";
 import { inject, injectable } from "inversify";
 import { InvalidTokenError, UserAlreadyExistsError, UserNotFoundError } from "../errors/errors";
 import { Email } from "../../domain/valueObjects/Email";
-import { IHashing } from "../ports/hashing/IHashing";
-import { ILogger } from "../ports/logger/ILogger";
-import { IJwt } from "../ports/jwt/IJwt";
+import type { IHashing } from "../ports/hashing/IHashing";
+
+import type { IJwt } from "../ports/jwt/IJwt";
 import { TYPES } from "../../infra/di/inversify/types";
 import { User } from "../../domain/aggregate/User";
-import { RegisterUserResponse } from "../dtos/userDtos";
-
+import type{ RegisterUserResponse } from "../dtos/userDtos";
+import type   { ILogger } from "../ports/logger/ILogger";
 @injectable()
 export class UserService {
     private userRepository: IUserRepository;
