@@ -3,6 +3,8 @@ import { inject, injectable } from 'inversify';
 import { TYPES } from '../../infra/di/inversify/types';
 import { UserService } from '../../app/services/userService';
 import  type{ ILogger } from '../../app/ports/logger/ILogger';
+import type { RegisterUserRequest, RegisterUserResponse } from "../../app/dtos/userDtos";
+import { match } from "oxide.ts";
 
 
 @injectable()
@@ -12,17 +14,11 @@ export class UserController {
         @inject(TYPES.ILogger) private logger: ILogger
     ) {}
 
-    registerUser =  async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const result = await this.userService.registerUser(req.body);
-            this.logger.info(`User registered successfully: ${req.body.email}`);
-            
-            res.status(201).json({
-                status: 'success',
-                data: result
+    registerUser =  async (req: Request, res: Response) => {
+            match((await this.userService.registerUser(req.body)),{
+            Ok: (_) => res.json({code: 200, message: "Registered user successfully", data: null}),
+            Err: (err) => res.status(err.code).json({code: err.code, message: err.message, data: null})
             });
-        } catch (error) {
-            next(error);
-        }
+            
     };
 }

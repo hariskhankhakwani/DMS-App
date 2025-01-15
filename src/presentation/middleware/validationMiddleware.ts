@@ -1,10 +1,10 @@
 import type{ Request, Response, NextFunction } from 'express';
-import { plainToClass } from 'class-transformer';
+import {plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 
 export const validationMiddleware = (dtoClass: any) => {
     return async (req: Request, res: Response, next: NextFunction) => {
-        const dtoInstance = plainToClass(dtoClass, req.body, { excludeExtraneousValues: true });
+        const dtoInstance = plainToInstance(dtoClass, req.body, { excludeExtraneousValues: true });
         const errors = await validate(dtoInstance);
 
         if (errors.length > 0) {
@@ -12,11 +12,12 @@ export const validationMiddleware = (dtoClass: any) => {
                 property: error.property,
                 constraints: error.constraints
             }));
-             res.status(400).json({
+              res.status(400).json({
                 status: 'error',
                 message: 'Validation failed',
                 errors: formattedErrors
             });
+            return
         }
 
         req.body = dtoInstance;

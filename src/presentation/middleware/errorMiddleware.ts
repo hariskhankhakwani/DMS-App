@@ -1,5 +1,5 @@
 import type{ Request, Response, NextFunction } from 'express';
-import { BaseUserError } from '../../app/errors/errors';
+import { BaseUserError } from '../../app/errors/userErrors';
 
 
 export const errorMiddleware = (
@@ -9,15 +9,16 @@ export const errorMiddleware = (
     next: NextFunction
 ) => {
     if (error instanceof BaseUserError) {
-        res.status(error.code).json({
+         res.status(error.code).json({
             status: 'error',
             message: error.message
         });
+        return
     }
 
-    console.error(error);
-     res.status(500).json({
+          res.status(500).json({
         status: 'error',
         message: 'Internal server error'
     });
+    return
 };

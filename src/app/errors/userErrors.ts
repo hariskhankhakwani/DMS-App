@@ -19,7 +19,7 @@
         constructor(message: string = 'User already exists') {
           super(message);
           this.name = 'UserAlreadyExistsError';
-          this.code = 400;
+          this.code = 409;
         }
     }
       

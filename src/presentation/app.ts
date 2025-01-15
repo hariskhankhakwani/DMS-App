@@ -3,6 +3,10 @@ import userRoutes from './routes/userRoutes';
 import { errorMiddleware } from './middleware/errorMiddleware';
 import { AppDataSource } from '../infra/db/typeOrm/dataSource';
 
+
+
+
+
 const app = express();
 
 

@@ -19,6 +19,7 @@ const container = new Container();
 container.bind<IHashing>(TYPES.IHashingService).to(Argon2HashingService);
 container.bind<IJwt>(TYPES.IJwt).to(JsonWebTokenJwt);
 container.bind<ILogger>(TYPES.ILogger).toConstantValue(new PinoLogger())
+
 container.bind<IUserRepository>(TYPES.IUserRepository).to(typeOrmUserRepository);
 container.bind<UserController>(UserController).toSelf();
 container.bind<UserService>(TYPES.UserService).to(UserService);

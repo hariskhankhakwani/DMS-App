@@ -7,6 +7,7 @@ import  container  from '../../infra/di/inversify/inversify.config';
 
 const router = Router();
 const userController = container.get<UserController>(UserController);
+
 router.post(
     '/register',
     validationMiddleware(RegisterUserRequest),
