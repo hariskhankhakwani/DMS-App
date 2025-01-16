@@ -39,7 +39,7 @@ export class typeOrmUserRepository implements IUserRepository {
         this.logger.info(`user found with ${email}`);
         return Ok(Some(userModel));
       }
-      this.logger.warn(`user found with ${email}`);
+      this.logger.warn(`user not  found with ${email}`);
       return Ok(None);
     } catch (error) {
       this.logger.error(`failed to get user ${email}: ${error}`);

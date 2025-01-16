@@ -41,7 +41,7 @@ export class UserService {
   async registerUser(
     regUserDto: dto.RegisterUserRequest,
   ): Promise<Result<RegisterUserResponse, UserAlreadyExistsError | InternalServerError>> {
-    const user = await this.userRepository.getByEmail(regUserDto.email);
+    const user = await this.userRepository.getByEmail(regUserDto.email.toLowerCase());
     if (user.isErr()) {
       return Err(new InternalServerError());
     }
@@ -49,42 +49,36 @@ export class UserService {
       const newUser = User.create(
         regUserDto.firstName,
         regUserDto.lastName,
-        Email.create(regUserDto.email),
+        Email.create(regUserDto.email.toLowerCase()),
         regUserDto.password,
       );
       newUser.setPassword(await this.hashService.Hash(newUser.getPassword()));
       await this.userRepository.createUser(newUser);
-      this.logger.info(`registered user ${regUserDto.email}`);
+      this.logger.info(`registered user ${regUserDto.email.toLowerCase()}`);
 
       return Ok(newUser.serialize());
     }
-    this.logger.warn(`user with ${regUserDto.email} already exists`);
+    this.logger.warn(`user with ${regUserDto.email.toLowerCase()} already exists`);
     return Err(new UserAlreadyExistsError());
   }
 
   async loginUser(loginUserDto: dto.LoginUserRequest): Promise<Result<dto.LoginUserResponse, UserNotFoundError>> {
-    const user = await this.userRepository.getByEmail(loginUserDto.email);
+    const user = await this.userRepository.getByEmail(loginUserDto.email.toLowerCase());
     if (user.isErr()) {
       return Err(new InternalServerError());
     }
     if (user.unwrap().isSome()) {
-      const newUser = User.create(
-        user.unwrap().unwrap().firstName,
-        user.unwrap().unwrap().lastName,
-        Email.create(loginUserDto.email),
-        loginUserDto.password,
-      );
-      const userModel = UserMapper.toModel(newUser);
-      if (!(await this.hashService.Compare(userModel.password, user.unwrap().unwrap().password))) {
-        this.logger.warn(`incorrect password for ${loginUserDto.email}`);
+
+      if (!(await this.hashService.Compare(loginUserDto.password, user.unwrap().unwrap().password))) {
+        this.logger.warn(`incorrect password for ${loginUserDto.email.toLowerCase()}`);
         return Err(new IncorrectPasswordError());
       }
 
-      const accessToken = await this.jwtService.generate(newUser.getEmail().getEmail());
+      const accessToken = await this.jwtService.generate(loginUserDto.email.toLowerCase());
 
       this.logger.info(`user with ${loginUserDto.email} logged in`);
 
-      return Ok({ accessToken });
+      return Ok({ id:user.unwrap().unwrap().id ,email:user.unwrap().unwrap().email ,accessToken });
     }
 
     this.logger.warn(`incorrect email: ${loginUserDto.email}`);

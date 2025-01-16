@@ -9,7 +9,7 @@ export class UserMapper {
       id: userModel.id,
       firstName: userModel.firstName,
       lastName: userModel.lastName,
-      email: userModel.email,
+      email: userModel.email.toLowerCase(),
       password: userModel.password,
       role: userModel.role,
       createdAt: userModel.createdAt,
@@ -30,7 +30,7 @@ export class UserMapper {
     const userModel = new UserModel();
 
     userModel.createdAt = user.getCreatedAt();
-    userModel.email = user.getEmail().getEmail();
+    userModel.email = user.getEmail().getEmail().toLowerCase();
     userModel.firstName = user.getFirstName();
     userModel.id = user.getId();
     userModel.lastName = user.getLastName();

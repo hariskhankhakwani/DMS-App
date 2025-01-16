@@ -79,4 +79,6 @@ export class JWTRefreshTokenPayload {
 
 export class LoginUserResponse {
   accessToken: string;
+  id:string
+  email:string
 }
