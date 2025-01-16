@@ -13,7 +13,9 @@ export class JsonWebTokenJwt implements IJwt {
 
     constructor(
         @inject(TYPES.ILogger) private readonly logger: ILogger
-    ) {}
+    ) {
+        this.secretKey=process.env.secret as string 
+    }
 
     async generate(payload: JWTAccessTokenPayload): Promise<string> {
         try {

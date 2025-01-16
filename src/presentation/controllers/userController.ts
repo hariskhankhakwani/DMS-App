@@ -21,4 +21,11 @@ export class UserController {
             });
             
     };
+
+    loginUser = async (req:Request , res: Response) =>{
+        match(await this.userService.loginUser(req.body), {
+            Ok: (resp) => res.json({code: 200, message: "User logged in successfully", data: resp}),
+            Err: (err) => res.status(err.code).json({code: err.code, message: err.message, data: null})
+        });
+    }
 }

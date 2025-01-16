@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { UserController } from '../controllers/userController';
 import { validationMiddleware } from '../middleware/validationMiddleware';
-import { RegisterUserRequest } from '../../app/dtos/userDtos';
+import { LoginUserRequest, RegisterUserRequest } from '../../app/dtos/userDtos';
 import  container  from '../../infra/di/inversify/inversify.config';
 
 
@@ -13,5 +13,12 @@ router.post(
     validationMiddleware(RegisterUserRequest),
     userController.registerUser
 );
+
+router.post(
+    '/login',
+    validationMiddleware(LoginUserRequest),
+    userController.loginUser
+);
+
 
 export default router;

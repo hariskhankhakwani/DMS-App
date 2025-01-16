@@ -51,6 +51,7 @@ export class LoginUserRequest {
 
     @IsString()
     @IsNotEmpty({message:"Password cannot be empty"})
+    @Expose()
     password: string;
 }
 
@@ -82,5 +83,4 @@ export class JWTRefreshTokenPayload {
 
 export class LoginUserResponse {
    accessToken: string;
-   refreshToken: string;
 }
