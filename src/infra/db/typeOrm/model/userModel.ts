@@ -1,34 +1,34 @@
-import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, } from 'typeorm';
-import  { DocumentModel } from './documentModel';
+import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { DocumentModel } from './documentModel';
 
 import { RoleType } from '../../../../domain/valueObjects/Role';
 
-@Entity("users")
+@Entity('users')
 export class UserModel {
-    @PrimaryColumn('uuid')
-    id: string;
+  @PrimaryColumn('uuid')
+  id: string;
 
-    @Column({ length: 50 })
-    firstName: string;
+  @Column({ length: 50 })
+  firstName: string;
 
-    @Column({ length: 50 })
-    lastName: string;
+  @Column({ length: 50 })
+  lastName: string;
 
-    @Column()//{ unique: true })
-    email: string;
+  @Column() //{ unique: true })
+  email: string;
 
-    @Column()
-    password: string;
+  @Column()
+  password: string;
 
-    @Column({type:'enum', enum:RoleType})
-    role: RoleType;
+  @Column({ type: 'enum', enum: RoleType })
+  role: RoleType;
 
-    @CreateDateColumn()
-    createdAt: Date;
+  @CreateDateColumn()
+  createdAt: Date;
 
-    @UpdateDateColumn()
-    updatedAt: Date;
+  @UpdateDateColumn()
+  updatedAt: Date;
 
-    @OneToMany(() => DocumentModel, (document) => document.user)
-    documents: DocumentModel[];
+  @OneToMany(() => DocumentModel, (document) => document.user)
+  documents: DocumentModel[];
 }
