@@ -1,10 +1,18 @@
-import type { UserModel } from '../../infra/db/typeOrm/model/userModel';
-import type { User } from '../aggregate/User';
-import { Result, Option } from 'oxide.ts';
+import type { Effect, Option } from "effect";
+import type {
+	UserCreationError,
+	UserDeletionError,
+	UserRetrievalError,
+} from "../../app/errors/userErrors";
+import type { User } from "../aggregate/User";
 
 export interface IUserRepository {
-  createUser(user: User): Promise<Result<User, Error>>;
-  deleteUser(user: User): Promise<boolean>;
-  getByEmail(email: string): Promise<Result<Option<UserModel>, Error>>;
-  updateUser(user: User): Promise<User>;
+	// getAllUsers(): Effect.Effect<User[], UserRetrievalError, never>;
+	createUser(user: User): Effect.Effect<User, UserCreationError, never>;
+	deleteUser(
+		email: string,
+	): Effect.Effect<Option.Option<boolean>, UserDeletionError, never>;
+	getByEmail(
+		email: string,
+	): Effect.Effect<Option.Option<User>, UserRetrievalError, never>;
 }

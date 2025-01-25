@@ -1,61 +1,70 @@
-import { injectable, inject } from 'inversify';
-import { sign, verify, decode } from 'jsonwebtoken';
-import type { IJwt } from '../../app/ports/jwt/IJwt';
-import type { ILogger } from '../../app/ports/logger/ILogger';
-import { JWTAccessTokenPayload } from '../../app/dtos/userDtos';
-import { TYPES } from '../di/inversify/types';
+import { Effect } from "effect";
+import { inject, injectable } from "inversify";
+import { sign, verify } from "jsonwebtoken";
+import type { JWTAccessTokenPayload } from "../../app/dtos/userDtos";
+import { JwtGenerationError } from "../../app/errors/jwtError";
+import { JwtVerificationError } from "../../app/errors/jwtError";
+import type { IJwt } from "../../app/ports/jwt/IJwt";
+import type { ILogger } from "../../app/ports/logger/ILogger";
+import { TYPES } from "../di/inversify/types";
 
 @injectable()
 export class JsonWebTokenJwt implements IJwt {
-  private readonly secretKey: string;
+	private readonly secretKey: string;
 
-  constructor(@inject(TYPES.ILogger) private readonly logger: ILogger) {
-    this.secretKey = process.env.secret as string;
-  }
+	constructor(@inject(TYPES.ILogger) private readonly logger: ILogger) {
+		this.secretKey = process.env.secret as string;
+	}
 
-  async generate(payload: JWTAccessTokenPayload): Promise<string> {
-    try {
-      this.logger.debug('Starting to generate JWT token ');
-      const token = sign({ data: payload }, this.secretKey);
+	generate(
+		payload: JWTAccessTokenPayload,
+	): Effect.Effect<string, JwtGenerationError, never> {
+		// this.logger.debug("Starting to generate JWT token ");
+		// const token = sign({ data: payload }, this.secretKey);
+		// this.logger.debug("JWT token generated successfully");
+		// return Ok(token);
 
-      this.logger.debug('JWT token generated successfully');
-      return token;
-    } catch (error) {
-      this.logger.error(`Error generating JWT token: ${error}`);
-      throw new Error('Failed to generate token');
-    }
-  }
+		return Effect.try({
+			try: () => sign({ data: payload }, this.secretKey),
+			catch: (error) => {
+				this.logger.error(`failed to generate JWT token: ${error}`);
+				return new JwtGenerationError();
+			},
+		});
+	}
 
-  async verify(token: string): Promise<boolean> {
-    try {
-      this.logger.debug('Starting to verify JWT token');
-      verify(token, this.secretKey);
-      this.logger.debug('JWT token verified successfully');
-      return true;
-    } catch (error) {
-      this.logger.warn(`Invalid JWT token: ${error}`);
-      return false;
-    }
-  }
+	verify(token: string): Effect.Effect<boolean, JwtVerificationError, never> {
+		// this.logger.debug("Starting to verify JWT token");
+		// verify(token, this.secretKey);
+		// this.logger.debug("JWT token verified successfully");
+		// return Ok(true);
 
-  async decode(token: string): Promise<{ header: any; payload: unknown; signature: any }> {
-    try {
-      const decoded = decode(token, { complete: true });
+		return Effect.try({
+			try: () => verify(token, this.secretKey),
+			catch: (error) => {
+				this.logger.error(`failed to verify JWT token: ${error}`);
+				return new JwtVerificationError();
+			},
+		}).pipe(Effect.map((_) => true));
+	}
 
-      if (!decoded) {
-        throw new Error('Failed to decode token');
-      }
+	// async decode(
+	// 	token: string,
+	// ): Promise<
+	// 	Result<{ header: any; payload: unknown; signature: any }, JwtError>
+	// > {
+	// 	const decoded = decode(token, { complete: true });
 
-      this.logger.debug('JWT token decoded successfully');
+	// 	if (!decoded) {
+	// 		return Err(new JwtError());
+	// 	}
 
-      return {
-        header: decoded.header,
-        payload: decoded.payload,
-        signature: decoded.signature,
-      };
-    } catch (error) {
-      this.logger.error(`Error decoding JWT token: ${error}`);
-      throw new Error('Failed to decode token');
-    }
-  }
+	// 	this.logger.debug("JWT token decoded successfully");
+
+	// 	return Ok({
+	// 		header: decoded.header,
+	// 		payload: decoded.payload,
+	// 		signature: decoded.signature,
+	// 	});
+	// }
 }

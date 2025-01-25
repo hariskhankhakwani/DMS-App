@@ -2,7 +2,7 @@ import { Container } from 'inversify';
 import { TYPES } from './types';
 import { PinoLogger } from '../../logger/pinoLogger';
 import type { IHashing } from '../../../app/ports/hashing/IHashing';
-import { Argon2HashingService } from '../../hashing/Argon2HashingService';
+import { Argon2HashingService } from '../../hashing/Argon/Argon2HashingService';
 import type { IJwt } from '../../../app/ports/jwt/IJwt';
 import { JsonWebTokenJwt } from '../../jwt/JsonWebTokenJwt';
 import type { IUserRepository } from '../../../domain/repositories/IUserRepository';

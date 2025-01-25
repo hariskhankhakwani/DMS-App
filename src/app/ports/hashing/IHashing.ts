@@ -1,4 +1,13 @@
+import type { Effect } from "effect";
+import type {
+	HashComparisonError,
+	HashGenerationError,
+} from "../../errors/hashErrors";
+
 export interface IHashing {
-  Hash(text: string): Promise<string>;
-  Compare(text: string, hashedText: string): Promise<boolean>;
+	hash(text: string): Effect.Effect<string, HashGenerationError, never>;
+	compare(
+		text: string,
+		hashedText: string,
+	): Effect.Effect<boolean, HashComparisonError, never>;
 }

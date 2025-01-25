@@ -1,24 +1,29 @@
-import { DocumentModel } from '../model/documentModel';
-import { DocumentItem } from '../../../../domain/entities/Document';
-import { MetadataDataMapper } from './metadataMapper';
+import { DocumentItem } from "../../../../domain/entities/Document";
+import { DocumentModel } from "../model/documentModel";
+import { MetadataDataMapper } from "./metadataMapper";
 
+// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class DocumentMapper {
-  static toDomain(docModel: DocumentModel): DocumentItem {
-    const document = DocumentItem.deserialize({ id: docModel.id, name: docModel.name, content: docModel.content });
+	static toDomain(docModel: DocumentModel): DocumentItem {
+		const document = DocumentItem.deserialize({
+			id: docModel.id,
+			name: docModel.name,
+			content: docModel.content,
+		});
 
-    return document;
-  }
+		return document;
+	}
 
-  static toModel(doc: DocumentItem): DocumentModel {
-    const docModel = new DocumentModel();
-    docModel.content = doc.getContent();
-    docModel.id = doc.getId();
-    docModel.name = doc.getName();
-    const metadata = doc.getMetadata();
-    if (metadata) {
-      docModel.metaData = MetadataDataMapper.toModel(metadata);
-    }
+	static toModel(doc: DocumentItem): DocumentModel {
+		const docModel = new DocumentModel();
+		docModel.content = doc.getContent();
+		docModel.id = doc.getId();
+		docModel.name = doc.getName();
+		const metadata = doc.getMetadata();
+		if (metadata) {
+			docModel.metaData = MetadataDataMapper.toModel(metadata);
+		}
 
-    return docModel;
-  }
+		return docModel;
+	}
 }

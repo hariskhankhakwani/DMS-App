@@ -1,6 +1,5 @@
 import { Expose } from 'class-transformer';
 import { IsNotEmpty, IsEmail, IsJWT, IsString, MaxLength, MinLength, minLength } from 'class-validator';
-import { date } from 'zod';
 
 export class RegisterUserRequest {
   @Expose()
@@ -25,6 +24,7 @@ export class RegisterUserRequest {
 
   @IsString({ message: 'Password has to be alpha numeric ' })
   @Expose()
+  @MinLength(8, { message: 'Password minimum length can be eight' })
   @IsNotEmpty({ message: 'Password cannot be empty' })
   password: string;
 }
@@ -79,6 +79,6 @@ export class JWTRefreshTokenPayload {
 
 export class LoginUserResponse {
   accessToken: string;
-  id:string
-  email:string
+  id: string;
+  email: string;
 }
