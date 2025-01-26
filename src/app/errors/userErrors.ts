@@ -69,3 +69,12 @@ export class InvalidTokenError extends BaseUserError {
 		this.code = 401;
 	}
 }
+
+export class UnauthorizedUserError extends BaseUserError {
+	_tag = "UnauthorizedUserError";
+	constructor(message = "Unauthorized user") {
+		super(message);
+		this.name = "UnauthorizedUserError";
+		this.code = 403;
+	}
+}

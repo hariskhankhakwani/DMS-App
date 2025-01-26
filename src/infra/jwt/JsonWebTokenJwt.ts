@@ -6,6 +6,7 @@ import { JwtGenerationError } from "../../app/errors/jwtError";
 import { JwtVerificationError } from "../../app/errors/jwtError";
 import type { IJwt } from "../../app/ports/jwt/IJwt";
 import type { ILogger } from "../../app/ports/logger/ILogger";
+import type { JwtPayload } from "../../shared/types";
 import { TYPES } from "../di/inversify/types";
 
 @injectable()
@@ -33,7 +34,9 @@ export class JsonWebTokenJwt implements IJwt {
 		});
 	}
 
-	verify(token: string): Effect.Effect<boolean, JwtVerificationError, never> {
+	verify(
+		token: string,
+	): Effect.Effect<string | JwtPayload, JwtVerificationError, never> {
 		// this.logger.debug("Starting to verify JWT token");
 		// verify(token, this.secretKey);
 		// this.logger.debug("JWT token verified successfully");
@@ -45,7 +48,7 @@ export class JsonWebTokenJwt implements IJwt {
 				this.logger.error(`failed to verify JWT token: ${error}`);
 				return new JwtVerificationError();
 			},
-		}).pipe(Effect.map((_) => true));
+		});
 	}
 
 	// async decode(

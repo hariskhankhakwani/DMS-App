@@ -78,12 +78,17 @@ export class UserService {
 												!isMatch
 													? Effect.fail(new IncorrectPasswordError())
 													: this.jwtService
-															.generate(loginUserDto.email.toLowerCase())
+															.generate({
+																email: loginUserDto.email.toLowerCase(),
+																id: user.getId(),
+																role: user.getRole().getType(),
+															})
 															.pipe(
 																Effect.map((accessToken) => ({
 																	id: user.getId(),
 																	email: user.getEmail(),
 																	accessToken,
+																	role: user.getRole().getType(),
 																})),
 															),
 											),

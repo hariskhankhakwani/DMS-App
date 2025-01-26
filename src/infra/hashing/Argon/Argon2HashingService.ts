@@ -47,7 +47,7 @@ export class Argon2HashingService implements IHashing {
 
 		return Effect.tryPromise({
 			try: () => {
-				this.logger.info(`comparing password ${text} with ${hashedText}`);
+				this.logger.info("comparing password");
 				return verify(hashedText, text);
 			},
 			catch: (error) => {

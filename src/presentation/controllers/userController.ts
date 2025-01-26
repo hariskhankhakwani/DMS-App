@@ -52,7 +52,7 @@ export class UserController {
 						| UserAlreadyExistsError
 						| UserCreationError
 						| HashGenerationError,
-				) => res.status(error.code).json({ message: error.message }),
+				) => res.json({ code: error.code, message: error.message }),
 			);
 		// Effect.match(response, {
 		// 	onFailure: (error) => {
@@ -85,7 +85,10 @@ export class UserController {
 						| UserNotFoundError
 						| IncorrectPasswordError
 						| JwtGenerationError,
-				) => res.status(error.code).json({ message: error.message }),
+				) =>
+					res
+						.status(error.code)
+						.json({ code: error.code, message: error.message }),
 			);
 	};
 

@@ -1,6 +1,5 @@
 import { DocumentItem } from "../../../../domain/entities/Document";
 import { DocumentModel } from "../model/documentModel";
-import { MetadataDataMapper } from "./metadataMapper";
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class DocumentMapper {
@@ -8,7 +7,11 @@ export class DocumentMapper {
 		const document = DocumentItem.deserialize({
 			id: docModel.id,
 			name: docModel.name,
-			content: docModel.content,
+			path: docModel.path,
+			creatorId: docModel.creatorId,
+			createdAt: docModel.createdAt,
+			updatedAt: docModel.updatedAt,
+			tags: docModel.tags,
 		});
 
 		return document;
@@ -16,14 +19,13 @@ export class DocumentMapper {
 
 	static toModel(doc: DocumentItem): DocumentModel {
 		const docModel = new DocumentModel();
-		docModel.content = doc.getContent();
+		docModel.path = doc.getPath();
 		docModel.id = doc.getId();
 		docModel.name = doc.getName();
-		const metadata = doc.getMetadata();
-		if (metadata) {
-			docModel.metaData = MetadataDataMapper.toModel(metadata);
-		}
-
+		docModel.creatorId = doc.getCreatorId();
+		docModel.createdAt = doc.getCreatedAt();
+		docModel.updatedAt = doc.getUpdatedAt();
+		docModel.tags = doc.getTags();
 		return docModel;
 	}
 }

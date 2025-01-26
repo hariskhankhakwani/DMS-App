@@ -10,7 +10,6 @@ import {
 	PrimaryColumn,
 } from "typeorm";
 import type { Relation } from "typeorm";
-import { MetadataModel } from "./docmentMetadataModel";
 import type { UserModel } from "./userModel";
 
 @Entity("documents")
@@ -21,16 +20,21 @@ export class DocumentModel {
 	@Column()
 	name: string;
 
-	@Column({ type: "bytea" })
-	content: Uint8Array;
+	@Column()
+	path: string;
 
-	@OneToOne(
-		() => MetadataModel,
-		(metadata) => metadata.document,
-	)
-	metaData: MetadataModel;
+	@Column()
+	creatorId: string;
+
+	@Column()
+	createdAt: Date;
+
+	@Column()
+	updatedAt: Date;
+
+	@Column("text", { array: true }) tags: string[];
 
 	@ManyToOne("UserModel", "documents")
-	@JoinColumn({ name: "userId", referencedColumnName: "id" })
+	@JoinColumn({ name: "creatorId", referencedColumnName: "id" })
 	user: Relation<UserModel>;
 }

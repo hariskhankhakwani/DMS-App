@@ -25,19 +25,6 @@ export class typeOrmUserRepository implements IUserRepository {
 		this.logger = logger;
 	}
 
-	getAllUsers(): Effect.Effect<User[], UserRetrievalError, never> {
-		return Effect.tryPromise({
-			try: () => {
-				const userModels = this.userModel.find();
-				return userModels.map(UserMapper.toDomain);
-			},
-			catch: (error) => {
-				this.logger.error(`failed to find all users: ${error}`);
-				return new UserRetrievalError();
-			},
-		});
-	}
-
 	createUser(user: User): Effect.Effect<User, UserCreationError, never> {
 		// try {
 		// 	const userModel = UserMapper.toModel(user);
