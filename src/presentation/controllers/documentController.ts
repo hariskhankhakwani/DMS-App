@@ -1,4 +1,5 @@
 import { Effect } from "effect";
+import type { FiberFailure } from "effect/Runtime";
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { ILogger } from "../../app/ports/logger/ILogger";
@@ -31,8 +32,17 @@ export class DocumentController {
 					data: document,
 				}),
 			)
-			.catch((error) => {
-				res.status(error.code).json({ message: error.message });
+			.catch((error: FiberFailure) => {
+				if (error.name.split(" ")[1] === "DocumentAlreadyExistsError") {
+					res.status(409).json({ message: error.message });
+					return;
+				}
+				if (error.name.split(" ")[1] === "UnauthorizedUserError") {
+					res.status(403).json({ message: error.message });
+					return;
+				}
+
+				res.status(500).json({ message: error.message });
 				return;
 			});
 	};

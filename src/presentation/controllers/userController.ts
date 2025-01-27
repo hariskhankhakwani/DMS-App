@@ -46,14 +46,7 @@ export class UserController {
 					data: user,
 				}),
 			)
-			.catch(
-				(
-					error:
-						| UserAlreadyExistsError
-						| UserCreationError
-						| HashGenerationError,
-				) => res.json({ code: error.code, message: error.message }),
-			);
+			.catch((error) => res.status(409).json({ message: error.message }));
 		// Effect.match(response, {
 		// 	onFailure: (error) => {
 		// 		return res
@@ -79,16 +72,8 @@ export class UserController {
 					data: user,
 				}),
 			)
-			.catch(
-				(
-					error:
-						| UserNotFoundError
-						| IncorrectPasswordError
-						| JwtGenerationError,
-				) =>
-					res
-						.status(error.code)
-						.json({ code: error.code, message: error.message }),
+			.catch((error) =>
+				res.status(409).json({ code: error.code, message: error.message }),
 			);
 	};
 

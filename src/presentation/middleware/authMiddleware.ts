@@ -1,7 +1,8 @@
 import { Effect } from "effect";
+import type { FiberFailure } from "effect/Runtime";
 import type { NextFunction, Request, Response } from "express";
 import type { JwtPayload } from "jsonwebtoken";
-import type { JwtVerificationError } from "../../app/errors/jwtError";
+import { JwtError, JwtVerificationError } from "../../app/errors/jwtError";
 import type { IJwt } from "../../app/ports/jwt/IJwt";
 import container from "../../infra/di/inversify/inversify.config";
 import { TYPES } from "../../infra/di/inversify/types";
@@ -36,7 +37,6 @@ export const authMiddleware = (
 					decodedToken as JwtPayload
 				).data.role;
 				expressReq.body.loggedInUserId = (decodedToken as JwtPayload).data.id;
-				return decodedToken;
 			}),
 		),
 	)
@@ -44,7 +44,9 @@ export const authMiddleware = (
 			expressNext();
 		})
 		.catch((error) => {
-			expressRes.status(401).json({ message: error.message });
+			expressRes.status(401).json({
+				message: error.message,
+			});
 			return;
 		});
 };

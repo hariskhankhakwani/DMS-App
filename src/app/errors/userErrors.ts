@@ -48,7 +48,7 @@ export class UserAlreadyExistsError extends BaseUserError {
 	constructor(message = "User already exists") {
 		super(message);
 		this.name = "UserAlreadyExistsError";
-		this.code = 469;
+		this.code = 409;
 	}
 }
 

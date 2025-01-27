@@ -12,7 +12,7 @@ export class DocumentAlreadyExistsError extends BaseDocumentError {
 	constructor(message = "Document already exists with this name ") {
 		super(message);
 		this.name = "DocumentAlreadyExistsError";
-		this.code = 400;
+		this.code = 409;
 	}
 }
 

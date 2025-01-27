@@ -26,12 +26,9 @@ export class UploadDocumentRequest {
 	tags: string[];
 
 	@Expose()
+	@IsNotEmpty()
 	file: FileObject;
 	// Express.Multer.File[];
-
-	@Expose()
-	@IsEnum(FileFormat, { message: "Invalid document format" })
-	documentFormat: FileFormat;
 }
 
 export class UpdateDocumentRequest {
