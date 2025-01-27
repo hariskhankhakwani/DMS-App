@@ -26,9 +26,14 @@ export class typeOrmDocRepository implements IDocumentRepository {
 	): Effect.Effect<DocumentItem, DocumentCreationError> {
 		const docModel = DocumentMapper.toModel(document);
 		return Effect.tryPromise({
-			try: () => this.docModel.save(docModel),
+			try: () => {
+				this.logger.info(`Attempting to create document: ${document.name}`);
+				const savedDoc = this.docModel.save(docModel);
+				this.logger.info("Document created successfully");
+				return savedDoc;
+			},
 			catch: (error) => {
-				this.logger.error(`failed to create document: ${error}`);
+				this.logger.error("failed to create document");
 				return new DocumentCreationError();
 			},
 		}).pipe(Effect.map((docModel) => DocumentMapper.toDomain(docModel)));
@@ -38,9 +43,13 @@ export class typeOrmDocRepository implements IDocumentRepository {
 		name: string,
 	): Effect.Effect<Option.Option<DocumentItem>, DocumentRetrievalError> {
 		return Effect.tryPromise({
-			try: () => this.docModel.findOne({ where: { name } }),
+			try: () => {
+				this.logger.info(`Attempting to retrieve document with name: ${name}`);
+				const doc = this.docModel.findOne({ where: { name } });
+				return doc;
+			},
 			catch: (error) => {
-				this.logger.error(`failed to find document with ${name}: ${error}`);
+				this.logger.error(`failed to find document with ${name}`);
 				return new DocumentRetrievalError();
 			},
 		}).pipe(
@@ -51,4 +60,17 @@ export class typeOrmDocRepository implements IDocumentRepository {
 			),
 		);
 	}
+
+	// getAll(): Effect.Effect<DocumentItem[], DocumentRetrievalError> {
+	// 	return Effect.tryPromise({
+	// 		try: () => {
+	// 			const docs = this.docModel.find();
+	// 			return docs;
+	// 		},
+	// 		catch: (error) => {
+	// 			this.logger.error("failed to retrieve all documents");
+	// 			return new DocumentRetrievalError();
+	// 		},
+	// 	});
+	// }
 }

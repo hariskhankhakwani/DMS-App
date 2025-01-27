@@ -1,4 +1,4 @@
-import { Effect, Option } from "effect";
+import { Effect, Option, pipe } from "effect";
 import { inject, injectable } from "inversify";
 import { User } from "../../domain/aggregate/User";
 import type { IUserRepository } from "../../domain/repositories/IUserRepository";
@@ -37,92 +37,101 @@ export class UserService {
 	}
 
 	registerUser(regUserDto: RegisterUserRequest) {
-		return this.userRepository.getByEmail(regUserDto.email.toLowerCase()).pipe(
-			Effect.flatMap((userOption) =>
-				Option.isSome(userOption)
-					? Effect.fail(new UserAlreadyExistsError())
-					: this.hashService.hash(regUserDto.password).pipe(
-							Effect.flatMap((hashedPassword) =>
-								Effect.try(() =>
-									User.create(
-										regUserDto.firstName,
-										regUserDto.lastName,
-										Email.create(regUserDto.email.toLowerCase()),
-										hashedPassword,
-									),
-								).pipe(
-									Effect.flatMap((hashedUser) =>
-										this.userRepository.createUser(hashedUser),
-									),
-									Effect.map((user) => user.serialize()),
-								),
-							),
-						),
+		const userOption = this.userRepository.getByEmail(
+			regUserDto.email.toLowerCase(),
+		);
+
+		const hashedPassword = this.hashService.hash(regUserDto.password);
+
+		const userError = userOption.pipe(
+			Effect.flatMap((user) =>
+				Option.match(user, {
+					onSome: (user) => {
+						this.logger.info("User already exists");
+						return Effect.fail(new UserAlreadyExistsError());
+					},
+					onNone: () => {
+						this.logger.info("User not found");
+						return Effect.succeed(new UserNotFoundError());
+					},
+				}),
 			),
 		);
+
+		const userCreation = pipe(
+			Effect.all([userError, hashedPassword]),
+			Effect.andThen(([user, hashedPassword]) => {
+				return User.create(
+					regUserDto.firstName,
+					regUserDto.lastName,
+					Email.create(regUserDto.email.toLowerCase()),
+					hashedPassword,
+				);
+			}),
+			Effect.flatMap((user) => this.userRepository.createUser(user)),
+			Effect.map((user) => user.serialize()),
+		);
+
+		return userCreation;
 	}
 
 	loginUser(loginUserDto: LoginUserRequest) {
-		return this.userRepository
-			.getByEmail(loginUserDto.email.toLowerCase())
-			.pipe(
-				Effect.flatMap((userOption) =>
-					Option.isNone(userOption)
-						? Effect.fail(new UserNotFoundError())
-						: userOption.pipe(
-								Effect.flatMap((user) => {
-									return this.hashService
-										.compare(loginUserDto.password, user.getPassword())
-										.pipe(
-											Effect.flatMap((isMatch) =>
-												!isMatch
-													? Effect.fail(new IncorrectPasswordError())
-													: this.jwtService
-															.generate({
-																email: loginUserDto.email.toLowerCase(),
-																id: user.getId(),
-																role: user.getRole().getType(),
-															})
-															.pipe(
-																Effect.map((accessToken) => ({
-																	id: user.getId(),
-																	email: user.getEmail(),
-																	accessToken,
-																	role: user.getRole().getType(),
-																})),
-															),
-											),
-										);
-								}),
-							),
-				),
-			);
+		const userOption = this.userRepository.getByEmail(
+			loginUserDto.email.toLowerCase(),
+		);
+
+		const user = userOption.pipe(
+			Effect.flatMap((user) =>
+				Option.match(user, {
+					onSome: (user) => {
+						this.logger.info("User found");
+						return Effect.succeed(user);
+					},
+					onNone: () => {
+						this.logger.info("User not found");
+						return Effect.fail(new UserNotFoundError());
+					},
+				}),
+			),
+		);
+		const isMatch = user.pipe(
+			Effect.map((user) => user.getPassword()),
+			Effect.flatMap((hashedPassword) => {
+				const isMatch = this.hashService.compare(
+					loginUserDto.password,
+					hashedPassword,
+				);
+				return isMatch;
+			}),
+		);
+
+		const verifedPassword = isMatch.pipe(
+			Effect.flatMap((isMatch) => {
+				if (!isMatch) {
+					this.logger.info("Incorrect password");
+					return Effect.fail(new IncorrectPasswordError());
+				}
+				this.logger.info("Password is correct");
+				return Effect.succeed(isMatch);
+			}),
+		);
+
+		const userLogin = pipe(
+			Effect.all([user, verifedPassword]),
+			Effect.andThen(([user, isMatch]) => {
+				const token = this.jwtService.generate({
+					email: user.getEmail().getEmail(),
+					id: user.getId(),
+					role: user.getRole().getType(),
+				});
+				return Effect.map(token, (token) => ({
+					accessToken: token,
+					user: user.getEmail().getEmail(),
+					role: user.getRole().getType(),
+				}));
+			}),
+		);
+
+		return userLogin;
 	}
 }
-
-// async loginUser(loginUserDto: dto.LoginUserRequest) {
-
-// }
-
-// async loginUser(loginUserDto: dto.LoginUserRequest): Promise<Result<dto.LoginUserResponse, UserNotFoundError>> {
-//   const user = await this.userRepository.getByEmail(loginUserDto.email.toLowerCase());
-//   if (user.isErr()) {
-//     return Err(new InternalServerError());
-//   }
-//   if (user.unwrap().isSome()) {
-
-//     if (!(await this.hashService.Compare(loginUserDto.password, user.unwrap().unwrap().password))) {
-//       this.logger.warn(`incorrect password for ${loginUserDto.email.toLowerCase()}`);
-//       return Err(new IncorrectPasswordError());
-//     }
-
-//     const accessToken = await this.jwtService.generate(loginUserDto.email.toLowerCase());
-
-//     this.logger.info(`user with ${loginUserDto.email} logged in`);
-
-//     return Ok({ id:user.unwrap().unwrap().id ,email:user.unwrap().unwrap().email ,accessToken });
-//   }
-
-//   this.logger.warn(`incorrect email: ${loginUserDto.email}`);
-//   return Err(new UserNotFoundError());
-// }

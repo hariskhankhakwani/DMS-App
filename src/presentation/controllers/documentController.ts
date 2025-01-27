@@ -26,18 +26,21 @@ export class DocumentController {
 				req.body.loggedInUserRole,
 			),
 		)
-			.then((document) =>
+			.then((document) => {
+				this.logger.info("Document uploaded successfully");
 				res.status(201).json({
 					message: "Document uploaded successfully",
 					data: document,
-				}),
-			)
+				});
+			})
 			.catch((error: FiberFailure) => {
+				this.logger.error("failed to upload document");
 				if (error.name.split(" ")[1] === "DocumentAlreadyExistsError") {
 					res.status(409).json({ message: error.message });
 					return;
 				}
 				if (error.name.split(" ")[1] === "UnauthorizedUserError") {
+					this.logger.error("Unauthorized user error");
 					res.status(403).json({ message: error.message });
 					return;
 				}

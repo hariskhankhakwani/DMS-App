@@ -1,4 +1,6 @@
+import { Effect } from "effect";
 import { v4 as uuidv4 } from "uuid";
+import { DocumentCreationDomainError } from "../errors/documentErrors";
 
 export interface IDocumentItem {
 	id: string;
@@ -28,16 +30,24 @@ export class DocumentItem implements IDocumentItem {
 		path: string,
 		creatorId: string,
 		tags: string[],
-	): DocumentItem {
-		const document = new DocumentItem();
+	): Effect.Effect<DocumentItem, DocumentCreationDomainError> {
+		return Effect.try({
+			try: () => {
+				const document = new DocumentItem();
 
-		document.setName(name);
-		document.setPath(path);
-		document.creatorId = creatorId;
-		document.createdAt = new Date();
-		document.updatedAt = new Date();
-		document.tags = tags;
-		return document;
+				document.setName(name);
+				document.setPath(path);
+				document.creatorId = creatorId;
+				document.createdAt = new Date();
+				document.updatedAt = new Date();
+				document.tags = tags;
+				return document;
+			},
+			catch: (error) =>
+				new DocumentCreationDomainError(
+					`Document creation failed doamin: ${error}`,
+				),
+		});
 	}
 
 	public setName(name: string): void {

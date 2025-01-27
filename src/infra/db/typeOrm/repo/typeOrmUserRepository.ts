@@ -40,11 +40,13 @@ export class typeOrmUserRepository implements IUserRepository {
 		// }
 		const userModel = UserMapper.toModel(user);
 		return Effect.tryPromise({
-			try: () => this.userModel.save(userModel),
+			try: () => {
+				const savedUser = this.userModel.save(userModel);
+				this.logger.info("User created successfully");
+				return savedUser;
+			},
 			catch: (error) => {
-				this.logger.error(
-					`failed to create user ${user.getEmail().getEmail()}: ${error}`,
-				);
+				this.logger.error("failed to create user");
 				return new UserCreationError();
 			},
 		}).pipe(Effect.map((userModel) => UserMapper.toDomain(userModel)));
@@ -63,9 +65,13 @@ export class typeOrmUserRepository implements IUserRepository {
 		// return Err(new UserNotFoundError());
 		// return Effect.succeed(Option.none());
 		return Effect.tryPromise({
-			try: () => this.userModel.findOne({ where: { email } }),
+			try: () => {
+				this.logger.info(`Attempting to retrieve user with email: ${email}`);
+				const user = this.userModel.findOne({ where: { email } });
+				return user;
+			},
 			catch: (error) => {
-				this.logger.error(`failed to find user with ${email}: ${error}`);
+				this.logger.error("failed  find by email ");
 				return new UserRetrievalError();
 			},
 		}).pipe(
@@ -83,9 +89,13 @@ export class typeOrmUserRepository implements IUserRepository {
 		email: string,
 	): Effect.Effect<Option.Option<boolean>, UserDeletionError, never> {
 		return Effect.tryPromise({
-			try: () => this.userModel.delete(email),
+			try: () => {
+				this.logger.info(`Attempting to delete user with email: ${email}`);
+				const result = this.userModel.delete(email);
+				return result;
+			},
 			catch: (error) => {
-				this.logger.error(`failed to find user with ${email}: ${error}`);
+				this.logger.error(`failed to delete user with ${email}`);
 				return new UserDeletionError();
 			},
 		}).pipe(

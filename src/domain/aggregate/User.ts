@@ -1,15 +1,7 @@
-import type { Effect } from "effect";
+import { Effect } from "effect";
 import { v4 as uuidv4 } from "uuid";
 import type { DocumentItem } from "../entities/Document";
-import {
-	EmptyNameError,
-	EmptyPasswordError,
-	InvalidNameCharactersError,
-	InvalidRoleError,
-	NameTooLongError,
-	NameTooShortError,
-	PasswordTooShortError,
-} from "../errors/userErrors";
+import { UserCreationDomainError } from "../errors/userErrors";
 import { Email } from "../valueObjects/Email";
 import { Role, type RoleType } from "../valueObjects/Role";
 
@@ -53,21 +45,27 @@ export class User {
 		email: Email,
 		password: string,
 		role?: Role,
-	): User {
-		const user = new User();
+	): Effect.Effect<User, Error> {
+		return Effect.try({
+			try: () => {
+				const user = new User();
 
-		user.setFirstName(firstName);
-		user.setLastName(lastName);
-		user.setPassword(password);
-		user.email = email;
-		user.setRole(role || Role.createUserRole());
+				user.setFirstName(firstName);
+				user.setLastName(lastName);
+				user.setPassword(password);
+				user.email = email;
+				user.setRole(role || Role.createUserRole());
 
-		return user;
+				return user;
+			},
+			catch: (error) =>
+				new UserCreationDomainError(`User creation failed doamin: ${error}`),
+		});
 	}
 
 	public setRole(role: Role): void {
 		if (!role) {
-			throw new InvalidRoleError();
+			throw new Error("Invalid role");
 		}
 		this.role = role;
 		this.updatedAt = new Date();
@@ -135,26 +133,26 @@ export class User {
 
 	private static validateName(name: string): void {
 		if (!name || name.trim().length === 0) {
-			throw new EmptyNameError();
+			throw new Error("EmptyNameError");
 		}
 		if (name.trim().length < 2) {
-			throw new NameTooShortError();
+			throw new Error("NameTooShortError");
 		}
 		if (name.length > 50) {
-			throw new NameTooLongError();
+			throw new Error("NameTooLongError");
 		}
 		const validNameRegex = /^[a-zA-Z\s\-']+$/;
 		if (!validNameRegex.test(name)) {
-			throw new InvalidNameCharactersError();
+			throw new Error("InvalidNameCharactersError");
 		}
 	}
 
 	private static validatePassword(password: string): void {
 		if (!password || password.trim().length === 0) {
-			throw new EmptyPasswordError();
+			throw new Error("EmptyPasswordError");
 		}
 		if (password.length < 8) {
-			throw new PasswordTooShortError();
+			throw new Error("PasswordTooShortError");
 		}
 	}
 

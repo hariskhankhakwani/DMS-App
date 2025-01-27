@@ -27,8 +27,8 @@ export class JsonWebTokenJwt implements IJwt {
 
 		return Effect.try({
 			try: () => sign({ data: payload }, this.secretKey),
-			catch: (error) => {
-				this.logger.error(`failed to generate JWT token: ${error}`);
+			catch: () => {
+				this.logger.error("failed to generate JWT token");
 				return new JwtGenerationError();
 			},
 		});
@@ -43,9 +43,13 @@ export class JsonWebTokenJwt implements IJwt {
 		// return Ok(true);
 
 		return Effect.try({
-			try: () => verify(token, this.secretKey),
+			try: () => {
+				const decoded = verify(token, this.secretKey);
+				this.logger.info("JWT token verified successfully");
+				return decoded;
+			},
 			catch: (error) => {
-				this.logger.error(`failed to verify JWT token: ${error}`);
+				this.logger.error("failed to verify JWT token");
 				return new JwtVerificationError();
 			},
 		});

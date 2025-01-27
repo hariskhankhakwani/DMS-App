@@ -39,14 +39,18 @@ export class UserController {
 	registerUser = async (req: Request, res: Response) => {
 		const response = this.userService.registerUser(req.body);
 		Effect.runPromise(response)
-			.then((user) =>
+			.then((user) => {
+				this.logger.info("User registered successfully");
 				res.json({
 					code: 201,
 					message: "Registered user successfully",
 					data: user,
-				}),
-			)
-			.catch((error) => res.status(409).json({ message: error.message }));
+				});
+			})
+			.catch((error) => {
+				this.logger.error("failed to register user");
+				res.status(409).json({ message: error.message });
+			});
 		// Effect.match(response, {
 		// 	onFailure: (error) => {
 		// 		return res
@@ -65,16 +69,18 @@ export class UserController {
 	loginUser = async (req: Request, res: Response) => {
 		const response = this.userService.loginUser(req.body);
 		Effect.runPromise(response)
-			.then((user) =>
+			.then((user) => {
+				this.logger.info("User logged in successfully");
 				res.json({
 					code: 200,
 					message: "User logged in successfully",
 					data: user,
-				}),
-			)
-			.catch((error) =>
-				res.status(409).json({ code: error.code, message: error.message }),
-			);
+				});
+			})
+			.catch((error) => {
+				this.logger.error("failed to login user");
+				res.status(409).json({ code: error.code, message: error.message });
+			});
 	};
 
 	// loginUser = async (req: Request, res: Response) => {

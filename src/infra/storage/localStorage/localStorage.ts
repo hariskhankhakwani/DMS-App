@@ -39,10 +39,11 @@ export class LocalStorage implements IStorage {
 		return Effect.tryPromise({
 			try: async (signal: AbortSignal) => {
 				await fs.writeFile(filePath, file.buffer);
+				this.logger.info(`File uploaded successfully: ${filePath}`);
 				return filePath;
 			},
-			catch: (error) => {
-				this.logger.error(`failed to upload file : ${error}`);
+			catch: () => {
+				this.logger.error("failed to upload file");
 				return new FileUploadError();
 			},
 		});

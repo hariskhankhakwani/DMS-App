@@ -1,13 +1,17 @@
 import { inject } from "inversify";
 
-import { Effect, Option } from "effect";
+import { Effect, Option, pipe } from "effect";
+import { effectContext } from "effect/Layer";
 import { injectable } from "inversify";
 import { DocumentItem } from "../../domain/entities/Document";
 import type { IDocumentRepository } from "../../domain/repositories/IDocumentRespository";
 import { RoleType } from "../../domain/valueObjects/Role";
 import { TYPES } from "../../infra/di/inversify/types";
 import type { UploadDocumentRequest } from "../dtos/documentDtos";
-import { DocumentAlreadyExistsError } from "../errors/docErrors";
+import {
+	DocumentAlreadyExistsError,
+	DocumentNotFoundError,
+} from "../errors/docErrors";
 import { UnauthorizedUserError } from "../errors/userErrors";
 import type { ILogger } from "../ports/logger/ILogger";
 import type { IStorage } from "../ports/storage/IStorage";
@@ -37,31 +41,48 @@ export class DocumentService {
 			return Effect.fail(new UnauthorizedUserError());
 		}
 
-		return this.documentRepository.getByName(documentUploadDto.name).pipe(
-			Effect.flatMap((documentOption) =>
-				Option.isSome(documentOption)
-					? Effect.fail(new DocumentAlreadyExistsError())
-					: this.storage
-							.uploadFile(documentUploadDto.file, documentUploadDto.name)
-							.pipe(
-								Effect.flatMap((filePath) =>
-									Effect.try(() =>
-										DocumentItem.create(
-											documentUploadDto.name,
-											filePath,
-											loggedInUserId,
-											documentUploadDto.tags,
-										),
-									)
-										.pipe(
-											Effect.flatMap((new_document) =>
-												this.documentRepository.create(new_document),
-											),
-										)
-										.pipe(Effect.map((document) => document.serialize())),
-								),
-							),
+		const documentOption = this.documentRepository.getByName(
+			documentUploadDto.name,
+		);
+
+		const documentError = documentOption.pipe(
+			Effect.flatMap((document) =>
+				Option.match(document, {
+					onSome: () => {
+						this.logger.info("Document already exists");
+						return Effect.fail(new DocumentAlreadyExistsError());
+					},
+					onNone: () => {
+						this.logger.info("Document not found");
+						return Effect.succeed(new DocumentNotFoundError());
+					},
+				}),
 			),
 		);
+
+		const documentCreation = pipe(
+			Effect.all([documentError]),
+			Effect.andThen(([document]) => {
+				return this.storage.uploadFile(
+					documentUploadDto.file,
+					documentUploadDto.name,
+				);
+			}),
+			Effect.flatMap((filePath) => {
+				const doc = DocumentItem.create(
+					documentUploadDto.name,
+					filePath,
+					loggedInUserId,
+					documentUploadDto.tags,
+				);
+				return doc;
+			}),
+			Effect.flatMap((doc) => {
+				return this.documentRepository.create(doc);
+			}),
+			Effect.map((doc) => doc.serialize()),
+		);
+
+		return documentCreation;
 	}
 }

@@ -34,6 +34,15 @@ export class DocumentUpdateError extends BaseDocumentError {
 	}
 }
 
+export class DocumentNotFoundError extends BaseDocumentError {
+	_tag = "DocumentNotFoundError";
+	constructor(message = "Document not found") {
+		super(message);
+		this.name = "DocumentNotFoundError";
+		this.code = 404;
+	}
+}
+
 export class DocumentRetrievalError extends BaseDocumentError {
 	_tag = "DocumentRetrievalError";
 	constructor(message = "Document could not be Retrieved") {

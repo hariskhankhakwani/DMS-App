@@ -18,7 +18,7 @@ export interface IDocumentRepository {
 	// 	document: DocumentItem,
 	// ): Effect.Effect<DocumentItem, DocumentUpdateError>;
 	// get(id: string): Effect.Effect<DocumentItem, DocumentRetrievalError>;
-	// getAll(userId: UUID): Effect.Effect<DocumentItem[], DocumentRetrievalError>;
+	// getAll(): Effect.Effect<DocumentItem[], DocumentRetrievalError>;
 	// delete(id: string): Effect.Effect<boolean, DocumentDeletionError>;
 	// search(
 	// 	metadata: Partial<Metadata>,

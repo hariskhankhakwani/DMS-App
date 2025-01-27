@@ -25,10 +25,12 @@ export class Argon2HashingService implements IHashing {
 		return Effect.tryPromise({
 			try: () => {
 				this.logger.debug("hashing password ");
-				return hash(text);
+				const hashedText = hash(text);
+				this.logger.info("Hash generation successful");
+				return hashedText;
 			},
 			catch: (error) => {
-				this.logger.error(`failed to hash text: ${error}`);
+				this.logger.error("failed to hash text");
 				return new HashGenerationError();
 			},
 		});
@@ -48,10 +50,12 @@ export class Argon2HashingService implements IHashing {
 		return Effect.tryPromise({
 			try: () => {
 				this.logger.info("comparing password");
-				return verify(hashedText, text);
+				const isMatch = verify(hashedText, text);
+				this.logger.info("Hash comparison successful");
+				return isMatch;
 			},
 			catch: (error) => {
-				this.logger.error(`failed to compare text with hash: ${error}`);
+				this.logger.error("failed to compare text with hash");
 				return new HashComparisonError();
 			},
 		});

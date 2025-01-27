@@ -26,9 +26,8 @@ export class UploadDocumentRequest {
 	tags: string[];
 
 	@Expose()
-	@IsNotEmpty()
-	file: FileObject;
-	// Express.Multer.File[];
+	file: // FileObject;
+	Express.Multer.File;
 }
 
 export class UpdateDocumentRequest {
