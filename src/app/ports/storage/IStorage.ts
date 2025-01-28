@@ -1,6 +1,9 @@
 import type { Effect } from "effect";
 import type { FileObject } from "../../../shared/types";
-import type { FileUploadError } from "../../errors/storageErrors";
+import type {
+	FileDeletionError,
+	FileUploadError,
+} from "../../errors/storageErrors";
 export interface IStorage {
 	uploadFile(
 		file: FileObject,
@@ -11,5 +14,5 @@ export interface IStorage {
 	// 	filePath: string,
 	// 	downloadFolder: string,
 	// ): Effect.Effect<string, FileDownloadError>;
-	// deleteFile(filePath: string): Effect.Effect<boolean, FileDeletionError>;
+	deleteFile(filePath: string): Effect.Effect<boolean, FileDeletionError>;
 }

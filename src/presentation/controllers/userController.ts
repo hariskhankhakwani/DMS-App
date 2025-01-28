@@ -22,20 +22,6 @@ export class UserController {
 		@inject(TYPES.ILogger) private logger: ILogger,
 	) {}
 
-	//   registerUser = async (req: Request, res: Response) => {
-	//     matchRes(await this.userService.registerUser(req.body), {
-	//       Ok: (_) => res.json({ code: 200, message: 'Registered user successfully', data: null }),
-	//       Err: (err) => res.status(err.code).json({ code: err.code, message: err.message, data: null }),
-	//     });
-	//   };
-
-	//   loginUser = async (req: Request, res: Response) => {
-	//     matchRes(await this.userService.loginUser(req.body), {
-	//       Ok: (resp) => res.json({ code: 200, message: 'User logged in successfully', data: resp }),
-	//       Err: (err) => res.status(err.code).json({ code: err.code, message: err.message, data: null }),
-	//     });
-	//   };
-	//
 	registerUser = async (req: Request, res: Response) => {
 		const response = this.userService.registerUser(req.body);
 		Effect.runPromise(response)
@@ -51,20 +37,6 @@ export class UserController {
 				this.logger.error("failed to register user");
 				res.status(409).json({ message: error.message });
 			});
-		// Effect.match(response, {
-		// 	onFailure: (error) => {
-		// 		return res
-		// 			.status(error instanceof NoSuchElementException ? 400 : 500)
-		// 			.json({ message: error.message });
-		// 	},
-		// 	onSuccess: (value) => {
-		// 		return res.json({
-		// 			code: 201,
-		// 			message: "Registered user successfully",
-		// 			data: value,
-		// 		});
-		// 	},
-		// });
 	};
 	loginUser = async (req: Request, res: Response) => {
 		const response = this.userService.loginUser(req.body);
@@ -83,8 +55,51 @@ export class UserController {
 			});
 	};
 
-	// loginUser = async (req: Request, res: Response) => {
-	//   const response = await this.userService.loginUser(req.body);
-	//   return res.json({ response }) as never;
-	// };
+	getAllUsers = async (req: Request, res: Response) => {
+		const response = this.userService.getAllUsers(req.body.loggedInUserRole);
+		Effect.runPromise(response)
+			.then((users) => {
+				this.logger.info("Users retrieved successfully");
+				res.json({
+					code: 200,
+					message: "Users retrieved successfully",
+					data: users,
+				});
+			})
+			.catch((error) => {
+				this.logger.error("failed to retrieve users");
+				if (error.name.split(" ")[1] === "UnauthorizedUserError") {
+					res.status(403).json({ message: error.message });
+					return;
+				}
+				if (error.name.split(" ")[1] === "UserNotFoundError") {
+					res.status(404).json({ message: error.message });
+					return;
+				}
+				res.status(500).json({ message: error.message });
+				return;
+			});
+	};
+
+	deleteUser = async (req: Request, res: Response) => {
+		console.log(req.body);
+		const response = this.userService.deleteUser(
+			req.body.userId,
+			req.body.loggedInUserRole,
+			req.body.loggedInUserId,
+		);
+		Effect.runPromise(response)
+			.then((user) => {
+				this.logger.info("User deleted successfully");
+				res.json({
+					code: 200,
+					message: "User deleted successfully",
+					data: user,
+				});
+			})
+			.catch((error) => {
+				this.logger.error("failed to delete user");
+				res.status(409).json({ message: error.message });
+			});
+	};
 }

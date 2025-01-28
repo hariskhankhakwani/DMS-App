@@ -170,6 +170,18 @@ export class User {
 		};
 	}
 
+	public serializeWithoutPassword() {
+		return {
+			id: this.id,
+			firstName: this.firstName,
+			lastName: this.lastName,
+			email: this.email.serialize(),
+			role: this.role.serialize(),
+			createdAt: this.createdAt,
+			updatedAt: this.updatedAt,
+		};
+	}
+
 	public static deserialize(obj: TSerializedUser): User {
 		const user = new User();
 		user.id = obj.id;

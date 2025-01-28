@@ -42,61 +42,24 @@ export class LocalStorage implements IStorage {
 				this.logger.info(`File uploaded successfully: ${filePath}`);
 				return filePath;
 			},
-			catch: () => {
-				this.logger.error("failed to upload file");
-				return new FileUploadError();
+			catch: (error) => {
+				this.logger.error(`failed to upload file: ${error}`);
+				return new FileUploadError(`failed to upload file: ${error}`);
 			},
 		});
 	}
 
-	// getFile(filePath: string): Effect.Effect<Buffer, FileRetrievalError> {
-	// 	return Effect.tryPromise({
-	// 		try: () => {
-	// 			const file = fs.readFile(filePath);
-	// 			this.logger.info(`File retrieved successfully: ${filePath}`);
-	// 			return file;
-	// 		},
-	// 		catch: (error) => {
-	// 			this.logger.error(`failed to retrieve file: ${error}`);
-	// 			return new FileRetrievalError();
-	// 		},
-	// 	});
-	// }
-
-	// downloadFile(
-	// 	filePath: string,
-	// 	downloadFolder: string,
-	// ): Effect.Effect<string, FileDownloadError> {
-	// 	const fileName = filePath.split("/").pop();
-	// 	if (!fileName) {
-	// 		this.logger.error(`Invalid file path: ${filePath}`);
-	// 		return Effect.fail(new FileDownloadError("Invalid file path"));
-	// 	}
-
-	// 	const destinationPath = join(downloadFolder, fileName);
-	// 	return Effect.tryPromise({
-	// 		try: async (signal: AbortSignal) => {
-	// 			await fs.copyFile(filePath, destinationPath);
-	// 			this.logger.info(`File downloaded successfully to: ${destinationPath}`);
-	// 		},
-	// 		catch: (error) => {
-	// 			this.logger.error(`failed to download file: ${error}`);
-	// 			return new FileDownloadError();
-	// 		},
-	// 	}).pipe(Effect.map(() => destinationPath));
-	// }
-
-	// deleteFile(filePath: string): Effect.Effect<boolean, FileDeletionError> {
-	// 	return Effect.tryPromise({
-	// 		try: async (signal: AbortSignal) => {
-	// 			await fs.unlink(filePath);
-	// 			this.logger.info(`File deleted successfully: ${filePath}`);
-	// 			return true;
-	// 		},
-	// 		catch: (error) => {
-	// 			this.logger.error(`failed to delete file: ${error}`);
-	// 			return new FileDeletionError();
-	// 		},
-	// 	});
-	// }
+	deleteFile(filePath: string): Effect.Effect<boolean, FileDeletionError> {
+		return Effect.tryPromise({
+			try: async (signal: AbortSignal) => {
+				await fs.unlink(filePath);
+				this.logger.info(`File deleted successfully: ${filePath}`);
+				return true;
+			},
+			catch: (error) => {
+				this.logger.error(`failed to delete file: ${error}`);
+				return new FileDeletionError(`failed to delete file: ${error}`);
+			},
+		});
+	}
 }

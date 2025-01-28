@@ -3,7 +3,9 @@ import { inject } from "inversify";
 import type { Repository } from "typeorm";
 import {
 	DocumentCreationError,
+	DocumentDeletionError,
 	DocumentRetrievalError,
+	DocumentUpdateError,
 } from "../../../../app/errors/docErrors";
 import type { ILogger } from "../../../../app/ports/logger/ILogger";
 import type { DocumentItem } from "../../../../domain/entities/Document";
@@ -39,6 +41,28 @@ export class typeOrmDocRepository implements IDocumentRepository {
 		}).pipe(Effect.map((docModel) => DocumentMapper.toDomain(docModel)));
 	}
 
+	getById(
+		id: string,
+	): Effect.Effect<Option.Option<DocumentItem>, DocumentRetrievalError> {
+		return Effect.tryPromise({
+			try: () => {
+				this.logger.info(`Attempting to retrieve document with id: ${id}`);
+				const doc = this.docModel.findOne({ where: { id } });
+				return doc;
+			},
+			catch: (error) => {
+				this.logger.error(`failed to find document with ${name}`);
+				return new DocumentRetrievalError();
+			},
+		}).pipe(
+			Effect.map((docModel) =>
+				docModel
+					? Option.some(DocumentMapper.toDomain(docModel))
+					: Option.none(),
+			),
+		);
+	}
+
 	getByName(
 		name: string,
 	): Effect.Effect<Option.Option<DocumentItem>, DocumentRetrievalError> {
@@ -61,16 +85,73 @@ export class typeOrmDocRepository implements IDocumentRepository {
 		);
 	}
 
-	// getAll(): Effect.Effect<DocumentItem[], DocumentRetrievalError> {
-	// 	return Effect.tryPromise({
-	// 		try: () => {
-	// 			const docs = this.docModel.find();
-	// 			return docs;
-	// 		},
-	// 		catch: (error) => {
-	// 			this.logger.error("failed to retrieve all documents");
-	// 			return new DocumentRetrievalError();
-	// 		},
-	// 	});
-	// }
+	getAll(): Effect.Effect<DocumentItem[], DocumentRetrievalError> {
+		return Effect.tryPromise({
+			try: () => {
+				this.logger.info("Attempting to retrieve all documents");
+				const docs = this.docModel.find();
+				return docs;
+			},
+			catch: (error) => {
+				this.logger.error("failed to retrieve all documents");
+				return new DocumentRetrievalError();
+			},
+		}).pipe(Effect.map((docModels) => DocumentMapper.toDomainMany(docModels)));
+	}
+
+	getAllByCreatorId(
+		creatorId: string,
+	): Effect.Effect<DocumentItem[], DocumentRetrievalError> {
+		return Effect.tryPromise({
+			try: () => {
+				this.logger.info(
+					`Attempting to retrieve all documents by creator id: ${creatorId}`,
+				);
+				const docs = this.docModel.find({ where: { creatorId } });
+				return docs;
+			},
+			catch: (error) => {
+				this.logger.error(
+					`failed to retrieve all documents by creator id: ${creatorId}`,
+				);
+				return new DocumentRetrievalError();
+			},
+		}).pipe(Effect.map((docModels) => DocumentMapper.toDomainMany(docModels)));
+	}
+
+	deleteById(
+		id: string,
+	): Effect.Effect<Option.Option<boolean>, DocumentDeletionError> {
+		return Effect.tryPromise({
+			try: () => {
+				const result = this.docModel.delete(id);
+				return result;
+			},
+			catch: (error) => {
+				this.logger.error("failed to delete document");
+				return new DocumentDeletionError();
+			},
+		}).pipe(
+			Effect.map((docModel) => (docModel ? Option.some(true) : Option.none())),
+		);
+	}
+
+	updateDocumentCreatorId(
+		oldId: string,
+		newId: string,
+	): Effect.Effect<number, DocumentUpdateError> {
+		return Effect.tryPromise({
+			try: () => {
+				const result = this.docModel.update(
+					{ creatorId: oldId },
+					{ creatorId: newId },
+				);
+				return result;
+			},
+			catch: (error) => {
+				this.logger.error("failed to update document creator id");
+				return new DocumentUpdateError();
+			},
+		}).pipe(Effect.map((result) => result.affected ?? -1));
+	}
 }

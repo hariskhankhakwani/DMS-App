@@ -17,6 +17,11 @@ export class DocumentMapper {
 		return document;
 	}
 
+	static toDomainMany(docModels: DocumentModel[]): DocumentItem[] {
+		// biome-ignore lint/complexity/noThisInStatic: <explanation>
+		return docModels.map((docModel) => this.toDomain(docModel));
+	}
+
 	static toModel(doc: DocumentItem): DocumentModel {
 		const docModel = new DocumentModel();
 		docModel.path = doc.getPath();
@@ -27,5 +32,10 @@ export class DocumentMapper {
 		docModel.updatedAt = doc.getUpdatedAt();
 		docModel.tags = doc.getTags();
 		return docModel;
+	}
+
+	static toModelMany(docs: DocumentItem[]): DocumentModel[] {
+		// biome-ignore lint/complexity/noThisInStatic: <explanation>
+		return docs.map((doc) => this.toModel(doc));
 	}
 }

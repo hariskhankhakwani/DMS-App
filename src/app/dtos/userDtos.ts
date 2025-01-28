@@ -101,3 +101,10 @@ export class LoginUserResponse {
 	id: string;
 	email: string;
 }
+
+export class DeleteUserRequest {
+	@IsString()
+	@IsNotEmpty({ message: "userId cannot be empty" })
+	@Expose()
+	userId: string;
+}

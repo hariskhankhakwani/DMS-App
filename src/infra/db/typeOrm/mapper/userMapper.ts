@@ -17,14 +17,6 @@ export class UserMapper {
 			updatedAt: userModel.updatedAt,
 		});
 
-		if (userModel.documents) {
-			// biome-ignore lint/complexity/noForEach: <explanation>
-			userModel.documents.forEach((doc) => {
-				const document = DocumentMapper.toDomain(doc);
-				user.addDocument(document);
-			});
-		}
-
 		return user;
 	}
 
@@ -41,5 +33,15 @@ export class UserMapper {
 		userModel.updatedAt = user.getUpdatedAt();
 
 		return userModel;
+	}
+
+	static toDomainMany(userModels: UserModel[]): User[] {
+		// biome-ignore lint/complexity/noThisInStatic: <explanation>
+		return userModels.map((userModel) => this.toDomain(userModel));
+	}
+
+	static toModelMany(users: User[]): UserModel[] {
+		// biome-ignore lint/complexity/noThisInStatic: <explanation>
+		return users.map((user) => this.toModel(user));
 	}
 }

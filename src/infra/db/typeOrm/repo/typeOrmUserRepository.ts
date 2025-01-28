@@ -55,15 +55,6 @@ export class typeOrmUserRepository implements IUserRepository {
 	getByEmail(
 		email: string,
 	): Effect.Effect<Option.Option<User>, UserRetrievalError, never> {
-		// const userModel = this.userModel.findOne({ where: { email } });
-
-		// if (userModel) {
-		// 	this.logger.info(`user found with ${email}`);
-		// 	return Ok(userModel);
-		// }
-		// this.logger.warn(`user not  found with ${email}`);
-		// return Err(new UserNotFoundError());
-		// return Effect.succeed(Option.none());
 		return Effect.tryPromise({
 			try: () => {
 				this.logger.info(`Attempting to retrieve user with email: ${email}`);
@@ -85,23 +76,56 @@ export class typeOrmUserRepository implements IUserRepository {
 		);
 	}
 
+	getById(
+		id: string,
+	): Effect.Effect<Option.Option<User>, UserRetrievalError, never> {
+		return Effect.tryPromise({
+			try: () => {
+				this.logger.info(`Attempting to retrieve user with id: ${id}`);
+				const user = this.userModel.findOne({ where: { id } });
+				return user;
+			},
+			catch: (error) => {
+				this.logger.error("failed  find by id ");
+				return new UserRetrievalError();
+			},
+		}).pipe(
+			Effect.map((userModel) =>
+				userModel ? Option.some(UserMapper.toDomain(userModel)) : Option.none(),
+			),
+		);
+	}
+
 	deleteUser(
-		email: string,
+		id: string,
 	): Effect.Effect<Option.Option<boolean>, UserDeletionError, never> {
 		return Effect.tryPromise({
 			try: () => {
-				this.logger.info(`Attempting to delete user with email: ${email}`);
-				const result = this.userModel.delete(email);
+				this.logger.info(`Attempting to delete user with id: ${id}`);
+				const result = this.userModel.delete(id);
 				return result;
 			},
 			catch: (error) => {
-				this.logger.error(`failed to delete user with ${email}`);
+				this.logger.error(`failed to delete user with ${id}`);
 				return new UserDeletionError();
 			},
 		}).pipe(
 			Effect.map((userModel) =>
-				userModel ? Option.some(true) : Option.none(),
+				userModel.affected ? Option.some(true) : Option.none(),
 			),
 		);
+	}
+
+	getAllUsers(): Effect.Effect<User[], UserRetrievalError, never> {
+		return Effect.tryPromise({
+			try: () => {
+				const users = this.userModel.find();
+				return users;
+			},
+			catch: (error) => {
+				this.logger.error("failed to retrieve all users");
+				return new UserRetrievalError();
+			},
+		}).pipe(Effect.map((userModels) => UserMapper.toDomainMany(userModels)));
 	}
 }

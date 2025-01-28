@@ -58,3 +58,17 @@ export class DocumentResponse {
 	@Expose()
 	updatedAt: Date;
 }
+
+export class DeleteDocumentRequest {
+	@Expose()
+	@IsNotEmpty()
+	@IsString()
+	documentId: string;
+}
+
+export class GetAllDocumentsByCreatorIdRequest {
+	@Expose()
+	@IsNotEmpty()
+	@IsString()
+	creatorId: string;
+}

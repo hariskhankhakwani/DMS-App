@@ -78,3 +78,12 @@ export class UnauthorizedUserError extends BaseUserError {
 		this.code = 403;
 	}
 }
+
+export class SelfDeletionError extends BaseUserError {
+	_tag = "SelfDeletionError";
+	constructor(message = "You cannot delete yourself") {
+		super(message);
+		this.name = "SelfDeletionError";
+		this.code = 403;
+	}
+}

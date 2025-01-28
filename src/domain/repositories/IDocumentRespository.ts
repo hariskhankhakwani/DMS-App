@@ -14,13 +14,28 @@ export interface IDocumentRepository {
 	getByName(
 		name: string,
 	): Effect.Effect<Option.Option<DocumentItem>, DocumentRetrievalError>;
+
+	getById(
+		id: string,
+	): Effect.Effect<Option.Option<DocumentItem>, DocumentRetrievalError>;
 	// update(
 	// 	document: DocumentItem,
 	// ): Effect.Effect<DocumentItem, DocumentUpdateError>;
 	// get(id: string): Effect.Effect<DocumentItem, DocumentRetrievalError>;
-	// getAll(): Effect.Effect<DocumentItem[], DocumentRetrievalError>;
-	// delete(id: string): Effect.Effect<boolean, DocumentDeletionError>;
+	getAll(): Effect.Effect<DocumentItem[], DocumentRetrievalError>;
+	deleteById(
+		id: string,
+	): Effect.Effect<Option.Option<boolean>, DocumentDeletionError>;
+
+	getAllByCreatorId(
+		creatorId: string,
+	): Effect.Effect<DocumentItem[], DocumentRetrievalError>;
 	// search(
 	// 	metadata: Partial<Metadata>,
 	// ): Effect.Effect<DocumentItem[], DocumentRetrievalError>;
+
+	updateDocumentCreatorId(
+		oldId: string,
+		newId: string,
+	): Effect.Effect<number, DocumentUpdateError>;
 }

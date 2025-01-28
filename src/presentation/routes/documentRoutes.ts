@@ -1,6 +1,10 @@
 import { Router } from "express";
 import multer from "multer";
-import { UploadDocumentRequest } from "../../app/dtos/documentDtos";
+import {
+	DeleteDocumentRequest,
+	GetAllDocumentsByCreatorIdRequest,
+	UploadDocumentRequest,
+} from "../../app/dtos/documentDtos";
 import container from "../../infra/di/inversify/inversify.config";
 import { DocumentController } from "../controllers/documentController";
 import { authMiddleware } from "../middleware/authMiddleware";
@@ -25,4 +29,14 @@ router.post(
 	documentController.uploadDocument,
 );
 
+router.get("/fetchAll", authMiddleware, documentController.getAllDocuments);
+
+router.delete("/deleteById", authMiddleware, documentController.deleteDocument);
+
+router.post(
+	"/fetchAllByCreatorId",
+	validationMiddleware(GetAllDocumentsByCreatorIdRequest),
+	authMiddleware,
+	documentController.getAllDocumentsByCreatorId,
+);
 export default router;
