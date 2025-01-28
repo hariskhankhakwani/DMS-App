@@ -116,4 +116,33 @@ export class DocumentController {
 				return;
 			});
 	};
+
+	updateDocumentTags = async (req: Request, res: Response) => {
+		Effect.runPromise(
+			this.documentService.updateDocumentTags(
+				req.body,
+				req.body.loggedInUserRole,
+			),
+		)
+			.then((document) => {
+				this.logger.info("Document tags updated successfully");
+				res.status(200).json({
+					message: "Document tags updated successfully",
+					data: document,
+				});
+			})
+			.catch((error: FiberFailure) => {
+				this.logger.error("failed to update document tags");
+				if (error.name.split(" ")[1] === "DocumentNotFoundError") {
+					res.status(404).json({ message: error.message });
+					return;
+				}
+				if (error.name.split(" ")[1] === "DocumentAlreadyHasTagsError") {
+					res.status(409).json({ message: error.message });
+					return;
+				}
+				res.status(500).json({ message: error.message });
+				return;
+			});
+	};
 }

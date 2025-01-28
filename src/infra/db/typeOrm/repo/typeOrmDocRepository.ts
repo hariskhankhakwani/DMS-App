@@ -154,4 +154,20 @@ export class typeOrmDocRepository implements IDocumentRepository {
 			},
 		}).pipe(Effect.map((result) => result.affected ?? -1));
 	}
+
+	updateDocumentTags(
+		documentId: string,
+		tags: string[],
+	): Effect.Effect<number, DocumentUpdateError> {
+		return Effect.tryPromise({
+			try: () => {
+				const result = this.docModel.update({ id: documentId }, { tags: tags });
+				return result;
+			},
+			catch: (error) => {
+				this.logger.error("failed to update document tags");
+				return new DocumentUpdateError();
+			},
+		}).pipe(Effect.map((result) => result.affected ?? -1));
+	}
 }

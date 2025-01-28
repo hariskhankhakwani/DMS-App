@@ -87,3 +87,21 @@ export class SelfDeletionError extends BaseUserError {
 		this.code = 403;
 	}
 }
+
+export class UserUpdateRoleError extends BaseUserError {
+	_tag = "UserUpdateRoleError";
+	constructor(message = "User could not be Updated Role ") {
+		super(message);
+		this.name = "UserUpdateRoleError";
+		this.code = 500;
+	}
+}
+
+export class UserAlreadyHasRoleError extends BaseUserError {
+	_tag = "UserAlreadyHasRoleError";
+	constructor(message = "User already has role") {
+		super(message);
+		this.name = "UserAlreadyHasRoleError";
+		this.code = 400;
+	}
+}

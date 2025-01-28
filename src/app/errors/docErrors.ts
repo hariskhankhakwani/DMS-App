@@ -60,3 +60,12 @@ export class DocumentDeletionError extends BaseDocumentError {
 		this.code = 500;
 	}
 }
+
+export class DocumentAlreadyHasTagsError extends BaseDocumentError {
+	_tag = "DocumentAlreadyHasTagsError";
+	constructor(message = "Document already has the given tags") {
+		super(message);
+		this.name = "DocumentAlreadyHasTagsError";
+		this.code = 400;
+	}
+}

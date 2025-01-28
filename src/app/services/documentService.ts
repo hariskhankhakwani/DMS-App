@@ -10,12 +10,15 @@ import { TYPES } from "../../infra/di/inversify/types";
 import type {
 	DeleteDocumentRequest,
 	GetAllDocumentsByCreatorIdRequest,
+	UpdateDocumentTagsRequest,
 	UploadDocumentRequest,
 } from "../dtos/documentDtos";
 import {
 	DocumentAlreadyExistsError,
+	DocumentAlreadyHasTagsError,
 	DocumentDeletionError,
 	DocumentNotFoundError,
+	DocumentUpdateError,
 } from "../errors/docErrors";
 import { UnauthorizedUserError } from "../errors/userErrors";
 import type { ILogger } from "../ports/logger/ILogger";
@@ -195,5 +198,60 @@ export class DocumentService {
 		);
 
 		return documentsRetrieval;
+	}
+
+	updateDocumentTags(
+		updateDocumentTagsRequest: UpdateDocumentTagsRequest,
+		loggedInUserRole: string,
+	) {
+		if (loggedInUserRole !== RoleType.ADMIN) {
+			this.logger.info("User is not an admin");
+			return Effect.fail(new UnauthorizedUserError());
+		}
+
+		const documentOption = this.documentRepository.getById(
+			updateDocumentTagsRequest.documentId,
+		);
+
+		const document = documentOption.pipe(
+			Effect.flatMap((document) =>
+				Option.match(document, {
+					onSome: (doc) => {
+						this.logger.info("Document found, proceeding to delete");
+						return Effect.succeed(doc);
+					},
+					onNone: () => {
+						this.logger.info("Document not found");
+						return Effect.fail(new DocumentNotFoundError());
+					},
+				}),
+			),
+		);
+
+		const documentUpdate = pipe(
+			Effect.all([document]),
+			Effect.andThen(([doc]) => {
+				console.log(doc.getTags());
+				console.log(updateDocumentTagsRequest.tags);
+				if (
+					JSON.stringify(doc.getTags().sort) ===
+					JSON.stringify(updateDocumentTagsRequest.tags.sort)
+				) {
+					this.logger.info("Document already has the given tags");
+					return Effect.fail(new DocumentAlreadyHasTagsError());
+				}
+
+				return this.documentRepository.updateDocumentTags(
+					updateDocumentTagsRequest.documentId,
+					updateDocumentTagsRequest.tags,
+				);
+			}),
+			Effect.map((isUpdated) => {
+				this.logger.info("Document tags updated");
+				return true;
+			}),
+		);
+
+		return documentUpdate;
 	}
 }

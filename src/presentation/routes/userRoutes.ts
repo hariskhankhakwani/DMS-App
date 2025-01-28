@@ -3,6 +3,7 @@ import {
 	DeleteUserRequest,
 	LoginUserRequest,
 	RegisterUserRequest,
+	UpdateUserRoleRequest,
 } from "../../app/dtos/userDtos";
 import container from "../../infra/di/inversify/inversify.config";
 import { UserController } from "../controllers/userController";
@@ -31,6 +32,13 @@ router.post(
 	validationMiddleware(DeleteUserRequest),
 	authMiddleware,
 	userController.deleteUser,
+);
+
+router.post(
+	"/updateRole",
+	validationMiddleware(UpdateUserRoleRequest),
+	authMiddleware,
+	userController.updateUserRole,
 );
 
 export default router;

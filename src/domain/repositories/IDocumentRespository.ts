@@ -38,4 +38,9 @@ export interface IDocumentRepository {
 		oldId: string,
 		newId: string,
 	): Effect.Effect<number, DocumentUpdateError>;
+
+	updateDocumentTags(
+		documentId: string,
+		tags: string[],
+	): Effect.Effect<number, DocumentUpdateError>;
 }

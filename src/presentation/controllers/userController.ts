@@ -102,4 +102,24 @@ export class UserController {
 				res.status(409).json({ message: error.message });
 			});
 	};
+
+	updateUserRole = async (req: Request, res: Response) => {
+		const response = this.userService.updateUserRole(
+			req.body.userId,
+			req.body.role,
+		);
+		Effect.runPromise(response)
+			.then((user) => {
+				this.logger.info("User role updated successfully");
+				res.json({
+					code: 200,
+					message: "User role updated successfully",
+					data: user,
+				});
+			})
+			.catch((error) => {
+				this.logger.error("failed to update user role");
+				res.status(409).json({ message: error.message });
+			});
+	};
 }

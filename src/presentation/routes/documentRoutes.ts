@@ -3,6 +3,7 @@ import multer from "multer";
 import {
 	DeleteDocumentRequest,
 	GetAllDocumentsByCreatorIdRequest,
+	UpdateDocumentTagsRequest,
 	UploadDocumentRequest,
 } from "../../app/dtos/documentDtos";
 import container from "../../infra/di/inversify/inversify.config";
@@ -38,5 +39,12 @@ router.post(
 	validationMiddleware(GetAllDocumentsByCreatorIdRequest),
 	authMiddleware,
 	documentController.getAllDocumentsByCreatorId,
+);
+
+router.post(
+	"/updateTags",
+	validationMiddleware(UpdateDocumentTagsRequest),
+	authMiddleware,
+	documentController.updateDocumentTags,
 );
 export default router;

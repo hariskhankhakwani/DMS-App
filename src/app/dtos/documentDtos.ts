@@ -30,18 +30,6 @@ export class UploadDocumentRequest {
 	Express.Multer.File;
 }
 
-export class UpdateDocumentRequest {
-	@Expose()
-	@IsOptional()
-	@IsString()
-	title?: string;
-
-	@Expose()
-	@IsOptional()
-	@IsString()
-	content?: string;
-}
-
 export class DocumentResponse {
 	@Expose()
 	id: string;
@@ -71,4 +59,16 @@ export class GetAllDocumentsByCreatorIdRequest {
 	@IsNotEmpty()
 	@IsString()
 	creatorId: string;
+}
+
+export class UpdateDocumentTagsRequest {
+	@Expose()
+	@IsNotEmpty()
+	@IsString()
+	documentId: string;
+
+	@Expose()
+	@IsNotEmpty()
+	@IsArray()
+	tags: string[];
 }

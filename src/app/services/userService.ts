@@ -15,8 +15,10 @@ import {
 	SelfDeletionError,
 	UnauthorizedUserError,
 	UserAlreadyExistsError,
+	UserAlreadyHasRoleError,
 	UserDeletionError,
 	UserNotFoundError,
+	UserUpdateRoleError,
 } from "../errors/userErrors";
 import type { IHashing } from "../ports/hashing/IHashing";
 import type { IJwt } from "../ports/jwt/IJwt";
@@ -77,7 +79,7 @@ export class UserService {
 				);
 			}),
 			Effect.flatMap((user) => this.userRepository.createUser(user)),
-			Effect.map((user) => user.serialize()),
+			Effect.map((user) => user.serializeWithoutPassword()),
 		);
 
 		return userCreation;
@@ -132,6 +134,7 @@ export class UserService {
 					id: user.getId(),
 					role: user.getRole().getType(),
 				});
+				this.logger.info("Token generated successfully");
 				return Effect.map(token, (token) => ({
 					accessToken: token,
 					user: user.getEmail().getEmail(),
@@ -194,7 +197,7 @@ export class UserService {
 
 		const userRole = user.pipe(Effect.map((user) => user.getRole().getType()));
 
-		const userAdminUpdates = userRole.pipe(
+		const userUpdates = userRole.pipe(
 			Effect.flatMap((userRole) => {
 				if (userRole === RoleType.ADMIN) {
 					return this.docRepository.updateDocumentCreatorId(id, loggedInUserId);
@@ -204,12 +207,13 @@ export class UserService {
 		);
 
 		const userDeletion = pipe(
-			Effect.all([userAdminUpdates, user]),
-			Effect.andThen(([userAdminUpdates, user]) => {
-				if (userAdminUpdates === -2) {
+			Effect.all([userUpdates, user]),
+			Effect.andThen(([userUpdates, user]) => {
+				if (userUpdates === -2) {
 					return this.userRepository.deleteUser(id);
 				}
-				if (userAdminUpdates === -1) {
+				if (userUpdates === -1) {
+					this.logger.info("User deletion failed");
 					return Effect.fail(new UserDeletionError());
 				}
 				return this.userRepository.deleteUser(id);
@@ -217,9 +221,11 @@ export class UserService {
 			Effect.map((userDeletionOption) =>
 				Option.match(userDeletionOption, {
 					onSome: () => {
+						this.logger.info("User deleted successfully");
 						return true;
 					},
 					onNone: () => {
+						this.logger.info("User deletion failed");
 						return false;
 					},
 				}),
@@ -227,27 +233,45 @@ export class UserService {
 		);
 
 		return userDeletion;
-		// const userDeletion = pipe(
-		// 	Effect.all([user, userOption]),
-		// 	Effect.andThen(([user, userOption]) => {
-		// 		if (user.getRole().getType() === RoleType.ADMIN) {
-		// 			return this.userRepository.deleteUser(id);
-		// 		}
-		// 		return this.userRepository.deleteUser(id);
-		// 	}),
-		// 	Effect.andThen((userDeletionOption) => {
-		// 		Option.match(userDeletionOption, {
-		// 			onSome: () => {
-		// 				return Effect.succeed(true);
-		// 			},
-		// 			onNone: () => {
-		// 				return Effect.fail(new UserDeletionError());
-		// 			},
-		// 		});
-		// 	}),
-		// 	Effect.map((userDeletionComplete) => () => true),
-		// );
+	}
 
-		// return userDeletion;
+	updateUserRole(userId: string, role: RoleType) {
+		if (role !== RoleType.ADMIN) {
+			this.logger.info("User authorized is not an admin");
+			return Effect.fail(new UnauthorizedUserError());
+		}
+
+		const userOption = this.userRepository.getById(userId);
+
+		const user = userOption.pipe(
+			Effect.flatMap((user) =>
+				Option.match(user, {
+					onSome: (user) => {
+						return Effect.succeed(user);
+					},
+					onNone: () => {
+						this.logger.info("User not found");
+						return Effect.fail(new UserNotFoundError());
+					},
+				}),
+			),
+		);
+
+		const userUpdateRole = pipe(
+			Effect.all([user]),
+			Effect.andThen(([user]) => {
+				if (user.getRole().getType() === role) {
+					this.logger.info("User already has role");
+					return Effect.fail(new UserAlreadyHasRoleError());
+				}
+				return this.userRepository.updateUserRole(userId, role);
+			}),
+			Effect.map((userUpdateRole) => {
+				this.logger.info("User role updated successfully");
+				return true;
+			}),
+		);
+
+		return userUpdateRole;
 	}
 }

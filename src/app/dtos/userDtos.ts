@@ -108,3 +108,15 @@ export class DeleteUserRequest {
 	@Expose()
 	userId: string;
 }
+
+export class UpdateUserRoleRequest {
+	@IsString()
+	@IsNotEmpty({ message: "role cannot be empty" })
+	@Expose()
+	role: RoleType;
+
+	@IsString()
+	@IsNotEmpty({ message: "userId cannot be empty" })
+	@Expose()
+	userId: string;
+}

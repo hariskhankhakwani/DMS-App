@@ -7,11 +7,13 @@ import {
 	UserDeletionError,
 	UserNotFoundError,
 	UserRetrievalError,
+	UserUpdateRoleError,
 } from "../../../../app/errors/userErrors";
 import type { ILogger } from "../../../../app/ports/logger/ILogger";
 // biome-ignore lint/style/useImportType: <explanation>
 import { User } from "../../../../domain/aggregate/User";
 import type { IUserRepository } from "../../../../domain/repositories/IUserRepository";
+import type { RoleType } from "../../../../domain/valueObjects/Role";
 import { TYPES } from "../../../di/inversify/types";
 import { AppDataSource } from "../dataSource";
 import { UserMapper } from "../mapper/userMapper";
@@ -26,18 +28,6 @@ export class typeOrmUserRepository implements IUserRepository {
 	}
 
 	createUser(user: User): Effect.Effect<User, UserCreationError, never> {
-		// try {
-		// 	const userModel = UserMapper.toModel(user);
-		// 	 this.userModel.save(userModel);
-
-		// 	this.logger.info(`created user ${user.getEmail().getEmail()}`);
-		// 	return Ok(UserMapper.toDomain(userModel));
-		// } catch (error) {
-		// 	this.logger.error(
-		// 		`failed to create user ${user.getEmail().getEmail()}: ${error}`,
-		// 	);
-		// 	return Err(error as Error);
-		// }
 		const userModel = UserMapper.toModel(user);
 		return Effect.tryPromise({
 			try: () => {
@@ -127,5 +117,21 @@ export class typeOrmUserRepository implements IUserRepository {
 				return new UserRetrievalError();
 			},
 		}).pipe(Effect.map((userModels) => UserMapper.toDomainMany(userModels)));
+	}
+
+	updateUserRole(
+		userId: string,
+		role: RoleType,
+	): Effect.Effect<number, UserUpdateRoleError, never> {
+		return Effect.tryPromise({
+			try: () => {
+				const result = this.userModel.update(userId, { role });
+				return result;
+			},
+			catch: (error) => {
+				this.logger.error("failed to update user role");
+				return new UserUpdateRoleError();
+			},
+		}).pipe(Effect.map((result) => result.affected ?? -1));
 	}
 }
