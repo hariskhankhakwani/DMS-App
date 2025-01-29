@@ -30,13 +30,11 @@ export class User {
 	private role: Role;
 	private createdAt: Date;
 	private updatedAt: Date;
-	private documents: DocumentItem[];
 
 	private constructor() {
 		this.id = uuidv4();
 		this.createdAt = new Date();
 		this.updatedAt = new Date();
-		this.documents = [];
 	}
 
 	public static create(
@@ -102,10 +100,6 @@ export class User {
 		return this.role.isAdmin();
 	}
 
-	addDocument(doc: DocumentItem) {
-		this.documents.push(doc);
-	}
-
 	public getId(): string {
 		return this.id;
 	}
@@ -129,9 +123,6 @@ export class User {
 	}
 	public getUpdatedAt(): Date {
 		return this.updatedAt;
-	}
-	public getDocuments(): DocumentItem[] {
-		return [...this.documents];
 	}
 
 	private static validateName(name: string): void {
