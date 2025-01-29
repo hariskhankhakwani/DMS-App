@@ -18,10 +18,7 @@ export interface IDocumentRepository {
 	getById(
 		id: string,
 	): Effect.Effect<Option.Option<DocumentItem>, DocumentRetrievalError>;
-	// update(
-	// 	document: DocumentItem,
-	// ): Effect.Effect<DocumentItem, DocumentUpdateError>;
-	// get(id: string): Effect.Effect<DocumentItem, DocumentRetrievalError>;
+
 	getAll(): Effect.Effect<DocumentItem[], DocumentRetrievalError>;
 	deleteById(
 		id: string,
@@ -30,9 +27,6 @@ export interface IDocumentRepository {
 	getAllByCreatorId(
 		creatorId: string,
 	): Effect.Effect<DocumentItem[], DocumentRetrievalError>;
-	// search(
-	// 	metadata: Partial<Metadata>,
-	// ): Effect.Effect<DocumentItem[], DocumentRetrievalError>;
 
 	updateDocumentCreatorId(
 		oldId: string,
@@ -43,4 +37,6 @@ export interface IDocumentRepository {
 		documentId: string,
 		tags: string[],
 	): Effect.Effect<number, DocumentUpdateError>;
+
+	getByTag(tag: string): Effect.Effect<DocumentItem[], DocumentRetrievalError>;
 }

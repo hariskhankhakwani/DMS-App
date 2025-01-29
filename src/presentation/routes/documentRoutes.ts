@@ -3,6 +3,7 @@ import multer from "multer";
 import {
 	DeleteDocumentRequest,
 	GetAllDocumentsByCreatorIdRequest,
+	GetAllDocumentsByTagRequest,
 	UpdateDocumentTagsRequest,
 	UploadDocumentRequest,
 } from "../../app/dtos/documentDtos";
@@ -47,4 +48,11 @@ router.post(
 	authMiddleware,
 	documentController.updateDocumentTags,
 );
+
+router.post(
+	"/fetchAllByTag",
+	validationMiddleware(GetAllDocumentsByTagRequest),
+	documentController.getAllDocumentsByTag,
+);
+
 export default router;

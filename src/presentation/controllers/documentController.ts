@@ -145,4 +145,24 @@ export class DocumentController {
 				return;
 			});
 	};
+
+	getAllDocumentsByTag = async (req: Request, res: Response) => {
+		Effect.runPromise(this.documentService.getAllDocumentsByTag(req.body))
+			.then((documents) => {
+				this.logger.info("Documents retrieved successfully by tag");
+				res.status(200).json({
+					message: "Documents retrieved successfully by tag",
+					data: documents,
+				});
+			})
+			.catch((error: FiberFailure) => {
+				this.logger.error("failed to retrieve documents by tag");
+				if (error.name.split(" ")[1] === "DocumentNotFoundError") {
+					res.status(404).json({ message: error.message });
+					return;
+				}
+				res.status(500).json({ message: error.message });
+				return;
+			});
+	};
 }

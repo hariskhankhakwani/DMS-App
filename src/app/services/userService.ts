@@ -155,10 +155,6 @@ export class UserService {
 
 		const usersRetrieval = users.pipe(
 			Effect.flatMap((users) => {
-				if (users.length === 0) {
-					this.logger.info("No users found");
-					return Effect.fail(new UserNotFoundError());
-				}
 				this.logger.info("Users retrieved successfully");
 				return Effect.succeed(
 					users.map((user) => user.serializeWithoutPassword()),

@@ -10,6 +10,7 @@ import { TYPES } from "../../infra/di/inversify/types";
 import type {
 	DeleteDocumentRequest,
 	GetAllDocumentsByCreatorIdRequest,
+	GetAllDocumentsByTagRequest,
 	UpdateDocumentTagsRequest,
 	UploadDocumentRequest,
 } from "../dtos/documentDtos";
@@ -57,7 +58,7 @@ export class DocumentService {
 			Effect.flatMap((document) =>
 				Option.match(document, {
 					onSome: () => {
-						this.logger.info("Document already exists");
+						this.logger.info("Document already exists with the same name");
 						return Effect.fail(new DocumentAlreadyExistsError());
 					},
 					onNone: () => {
@@ -158,10 +159,6 @@ export class DocumentService {
 
 		const documentsRetrieval = documents.pipe(
 			Effect.flatMap((documents) => {
-				if (documents.length === 0) {
-					this.logger.info("No documents found");
-					return Effect.fail(new DocumentNotFoundError());
-				}
 				this.logger.info("Documents retrieved successfully");
 				return Effect.succeed(documents.map((doc) => doc.serialize()));
 			}),
@@ -188,10 +185,24 @@ export class DocumentService {
 
 		const documentsRetrieval = documents.pipe(
 			Effect.flatMap((documents) => {
-				if (documents.length === 0) {
-					this.logger.info("No documents found");
-					return Effect.fail(new DocumentNotFoundError());
-				}
+				this.logger.info("Documents retrieved successfully");
+				return Effect.succeed(documents.map((doc) => doc.serialize()));
+			}),
+		);
+
+		return documentsRetrieval;
+	}
+
+	getAllDocumentsByTag(
+		getAllDocumentsByTagRequest: GetAllDocumentsByTagRequest,
+	) {
+		this.logger.info("Getting all documents by tag");
+		const documents = this.documentRepository.getByTag(
+			getAllDocumentsByTagRequest.tag,
+		);
+
+		const documentsRetrieval = documents.pipe(
+			Effect.flatMap((documents) => {
 				this.logger.info("Documents retrieved successfully");
 				return Effect.succeed(documents.map((doc) => doc.serialize()));
 			}),
@@ -217,7 +228,7 @@ export class DocumentService {
 			Effect.flatMap((document) =>
 				Option.match(document, {
 					onSome: (doc) => {
-						this.logger.info("Document found, proceeding to delete");
+						this.logger.info("Document found, updating tags");
 						return Effect.succeed(doc);
 					},
 					onNone: () => {
@@ -231,11 +242,9 @@ export class DocumentService {
 		const documentUpdate = pipe(
 			Effect.all([document]),
 			Effect.andThen(([doc]) => {
-				console.log(doc.getTags());
-				console.log(updateDocumentTagsRequest.tags);
 				if (
-					JSON.stringify(doc.getTags().sort) ===
-					JSON.stringify(updateDocumentTagsRequest.tags.sort)
+					JSON.stringify(doc.getTags().sort()) ===
+					JSON.stringify(updateDocumentTagsRequest.tags.sort())
 				) {
 					this.logger.info("Document already has the given tags");
 					return Effect.fail(new DocumentAlreadyHasTagsError());

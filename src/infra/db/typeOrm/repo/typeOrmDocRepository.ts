@@ -170,4 +170,20 @@ export class typeOrmDocRepository implements IDocumentRepository {
 			},
 		}).pipe(Effect.map((result) => result.affected ?? -1));
 	}
+
+	getByTag(tag: string): Effect.Effect<DocumentItem[], DocumentRetrievalError> {
+		return Effect.tryPromise({
+			try: () => {
+				const docs = this.docModel
+					.createQueryBuilder("document")
+					.where(":searchTerm = ANY(document.tags)", { searchTerm: tag })
+					.getMany();
+				return docs;
+			},
+			catch: (error) => {
+				this.logger.error("failed to retrieve documents by tag");
+				return new DocumentRetrievalError();
+			},
+		}).pipe(Effect.map((docModels) => DocumentMapper.toDomainMany(docModels)));
+	}
 }

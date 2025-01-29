@@ -16,18 +16,17 @@ export class UploadDocumentRequest {
 	@IsString()
 	name: string;
 
-	@Expose()
-	@IsNotEmpty()
-	@IsString()
-	path: string;
+	// @Expose()
+	// @IsNotEmpty()
+	// @IsString()
+	// path: string;
 
 	@Expose()
 	@IsArray()
 	tags: string[];
 
 	@Expose()
-	file: // FileObject;
-	Express.Multer.File;
+	file: FileObject;
 }
 
 export class DocumentResponse {
@@ -71,4 +70,11 @@ export class UpdateDocumentTagsRequest {
 	@IsNotEmpty()
 	@IsArray()
 	tags: string[];
+}
+
+export class GetAllDocumentsByTagRequest {
+	@Expose()
+	@IsNotEmpty()
+	@IsString()
+	tag: string;
 }

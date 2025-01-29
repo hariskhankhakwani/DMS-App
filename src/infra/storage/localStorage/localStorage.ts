@@ -38,7 +38,7 @@ export class LocalStorage implements IStorage {
 		const filePath = createFilePath(fileName, fileExtension);
 		return Effect.tryPromise({
 			try: async (signal: AbortSignal) => {
-				await fs.writeFile(filePath, file.buffer);
+				await fs.writeFile(filePath, new Uint8Array(file.buffer));
 				this.logger.info(`File uploaded successfully: ${filePath}`);
 				return filePath;
 			},
