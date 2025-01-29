@@ -27,7 +27,7 @@ router.post(
 
 router.get("/fetchAll", authMiddleware, userController.getAllUsers);
 
-router.post(
+router.delete(
 	"/delete",
 	validationMiddleware(DeleteUserRequest),
 	authMiddleware,

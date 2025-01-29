@@ -110,7 +110,7 @@ export class DeleteUserRequest {
 }
 
 export class UpdateUserRoleRequest {
-	@IsString()
+	@IsEnum(RoleType)
 	@IsNotEmpty({ message: "role cannot be empty" })
 	@Expose()
 	role: RoleType;

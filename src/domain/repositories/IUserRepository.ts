@@ -5,7 +5,7 @@ import type {
 	UserRetrievalError,
 	UserUpdateRoleError,
 } from "../../app/errors/userErrors";
-import type { User } from "../aggregate/User";
+import type { User } from "../entities/User";
 import type { RoleType } from "../valueObjects/Role";
 
 export interface IUserRepository {

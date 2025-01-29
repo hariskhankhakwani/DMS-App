@@ -1,9 +1,9 @@
 import { Effect } from "effect";
 import { v4 as uuidv4 } from "uuid";
-import type { DocumentItem } from "../entities/Document";
 import { UserCreationDomainError } from "../errors/userErrors";
 import { Email } from "../valueObjects/Email";
 import { Role, type RoleType } from "../valueObjects/Role";
+import type { DocumentItem } from "./Document";
 
 export type IUser = {
 	id: string;
@@ -45,7 +45,7 @@ export class User {
 		email: Email,
 		password: string,
 		role?: Role,
-	): Effect.Effect<User, Error> {
+	): Effect.Effect<User, UserCreationDomainError> {
 		return Effect.try({
 			try: () => {
 				const user = new User();
@@ -58,8 +58,11 @@ export class User {
 
 				return user;
 			},
-			catch: (error) =>
-				new UserCreationDomainError(`User creation failed doamin: ${error}`),
+			catch: (error) => {
+				return new UserCreationDomainError(
+					`User creation failed doamin: ${error}`,
+				);
+			},
 		});
 	}
 

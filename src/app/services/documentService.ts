@@ -46,6 +46,7 @@ export class DocumentService {
 		loggedInUserId: string,
 		loggedInUserRole: string,
 	) {
+		console.log(loggedInUserRole);
 		if (loggedInUserRole !== RoleType.ADMIN) {
 			return Effect.fail(new UnauthorizedUserError());
 		}
@@ -94,8 +95,6 @@ export class DocumentService {
 
 		return documentCreation;
 	}
-
-	// ... existing code ...
 
 	deleteDocument(
 		deleteDocumentRequest: DeleteDocumentRequest,

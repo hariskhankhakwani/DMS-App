@@ -1,4 +1,4 @@
-import { User } from "../../../../domain/aggregate/User";
+import { User } from "../../../../domain/entities/User";
 import { DocumentModel } from "../model/documentModel";
 import { UserModel } from "../model/userModel";
 import { DocumentMapper } from "./documentMapper";

@@ -1,6 +1,6 @@
 import { Effect, Option, pipe } from "effect";
 import { inject, injectable } from "inversify";
-import { User } from "../../domain/aggregate/User";
+import { User } from "../../domain/entities/User";
 import type { IDocumentRepository } from "../../domain/repositories/IDocumentRespository";
 import type { IUserRepository } from "../../domain/repositories/IUserRepository";
 import { Email } from "../../domain/valueObjects/Email";
@@ -231,8 +231,9 @@ export class UserService {
 		return userDeletion;
 	}
 
-	updateUserRole(userId: string, role: RoleType) {
-		if (role !== RoleType.ADMIN) {
+	updateUserRole(userId: string, role: RoleType, loggedInUserRole: string) {
+		console.log(loggedInUserRole);
+		if (loggedInUserRole !== RoleType.ADMIN) {
 			this.logger.info("User authorized is not an admin");
 			return Effect.fail(new UnauthorizedUserError());
 		}

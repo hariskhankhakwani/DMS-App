@@ -12,14 +12,14 @@ export interface IDocumentItem {
 	tags: string[];
 }
 
-export class DocumentItem implements IDocumentItem {
-	id: string;
-	name: string;
-	path: string;
-	creatorId: string;
-	createdAt: Date;
-	updatedAt: Date;
-	tags: string[];
+export class DocumentItem {
+	private id: string;
+	private name: string;
+	private path: string;
+	private creatorId: string;
+	private createdAt: Date;
+	private updatedAt: Date;
+	private tags: string[];
 
 	private constructor() {
 		this.id = uuidv4();

@@ -29,7 +29,9 @@ export class typeOrmDocRepository implements IDocumentRepository {
 		const docModel = DocumentMapper.toModel(document);
 		return Effect.tryPromise({
 			try: () => {
-				this.logger.info(`Attempting to create document: ${document.name}`);
+				this.logger.info(
+					`Attempting to create document: ${document.getName()}`,
+				);
 				const savedDoc = this.docModel.save(docModel);
 				this.logger.info("Document created successfully");
 				return savedDoc;

@@ -24,82 +24,133 @@ export class UserController {
 
 	registerUser = async (req: Request, res: Response) => {
 		const response = this.userService.registerUser(req.body);
-		Effect.runPromise(response)
-			.then((user) => {
+
+		const responseMatch = Effect.match(response, {
+			onSuccess: (user) => {
 				this.logger.info("User registered successfully");
-				res.json({
+				return {
 					code: 201,
 					message: "Registered user successfully",
 					data: user,
+				};
+			},
+			onFailure: (error) => {
+				this.logger.error("failed to register user");
+				return {
+					code: error.code,
+					message: error.message,
+					data: error,
+				};
+			},
+		});
+		Effect.runPromise(responseMatch)
+			.then((resp) => {
+				this.logger.info(resp.message);
+				res.status(resp.code).json({
+					message: resp.message,
+					data: resp.data,
 				});
 			})
 			.catch((error) => {
-				this.logger.error("failed to register user");
-				res.status(409).json({ message: error.message });
+				this.logger.error(error.message);
+				res.status(500).json({ message: error.message });
 			});
 	};
 	loginUser = async (req: Request, res: Response) => {
 		const response = this.userService.loginUser(req.body);
-		Effect.runPromise(response)
-			.then((user) => {
+		const responseMatch = Effect.match(response, {
+			onSuccess: (userLogin) => {
 				this.logger.info("User logged in successfully");
-				res.json({
-					code: 200,
-					message: "User logged in successfully",
-					data: user,
+				return { code: 200, message: "logged in sucessfully", data: userLogin };
+			},
+			onFailure: (error) => {
+				this.logger.error("failed to retrieve users");
+				return {
+					code: error.code,
+					message: error.message,
+					data: error,
+				};
+			},
+		});
+		Effect.runPromise(responseMatch)
+			.then((resp) => {
+				this.logger.info(resp.message);
+				res.status(resp.code).json({
+					message: resp.message,
+					data: resp.data,
 				});
 			})
 			.catch((error) => {
-				this.logger.error("failed to login user");
-				res.status(409).json({ code: error.code, message: error.message });
+				res.status(500).json({ code: error.code, message: error.message });
 			});
 	};
 
 	getAllUsers = async (req: Request, res: Response) => {
 		const response = this.userService.getAllUsers(req.body.loggedInUserRole);
-		Effect.runPromise(response)
-			.then((users) => {
+		const responseMatch = Effect.match(response, {
+			onSuccess: (users) => {
 				this.logger.info("Users retrieved successfully");
-				res.json({
+				return {
 					code: 200,
 					message: "Users retrieved successfully",
 					data: users,
+				};
+			},
+			onFailure: (error) => {
+				return {
+					code: error.code,
+					message: error.message,
+					data: error,
+				};
+			},
+		});
+		Effect.runPromise(responseMatch)
+			.then((resp) => {
+				res.status(resp.code).json({
+					message: resp.message,
+					data: resp.data,
 				});
 			})
 			.catch((error) => {
-				this.logger.error("failed to retrieve users");
-				if (error.name.split(" ")[1] === "UnauthorizedUserError") {
-					res.status(403).json({ message: error.message });
-					return;
-				}
-				if (error.name.split(" ")[1] === "UserNotFoundError") {
-					res.status(404).json({ message: error.message });
-					return;
-				}
+				this.logger.error(error.message);
 				res.status(500).json({ message: error.message });
-				return;
 			});
 	};
 
 	deleteUser = async (req: Request, res: Response) => {
-		console.log(req.body);
 		const response = this.userService.deleteUser(
 			req.body.userId,
 			req.body.loggedInUserRole,
 			req.body.loggedInUserId,
 		);
-		Effect.runPromise(response)
-			.then((user) => {
+		const responseMatch = Effect.match(response, {
+			onSuccess: (user) => {
 				this.logger.info("User deleted successfully");
-				res.json({
+				return {
 					code: 200,
 					message: "User deleted successfully",
 					data: user,
+				};
+			},
+			onFailure: (error) => {
+				this.logger.error("failed to delete user");
+				return {
+					code: error.code,
+					message: error.message,
+					data: error,
+				};
+			},
+		});
+		Effect.runPromise(responseMatch)
+			.then((resp) => {
+				res.status(resp.code).json({
+					message: resp.message,
+					data: resp.data,
 				});
 			})
 			.catch((error) => {
-				this.logger.error("failed to delete user");
-				res.status(409).json({ message: error.message });
+				this.logger.error(error.message);
+				res.status(500).json({ message: error.message });
 			});
 	};
 
@@ -107,19 +158,36 @@ export class UserController {
 		const response = this.userService.updateUserRole(
 			req.body.userId,
 			req.body.role,
+			req.body.loggedInUserRole,
 		);
-		Effect.runPromise(response)
-			.then((user) => {
+		const responseMatch = Effect.match(response, {
+			onSuccess: (user) => {
 				this.logger.info("User role updated successfully");
-				res.json({
+				return {
 					code: 200,
 					message: "User role updated successfully",
 					data: user,
+				};
+			},
+			onFailure: (error) => {
+				this.logger.error("failed to update user role");
+				return {
+					code: error.code,
+					message: error.message,
+					data: error,
+				};
+			},
+		});
+		Effect.runPromise(responseMatch)
+			.then((resp) => {
+				res.status(resp.code).json({
+					message: resp.message,
+					data: resp.data,
 				});
 			})
 			.catch((error) => {
-				this.logger.error("failed to update user role");
-				res.status(409).json({ message: error.message });
+				this.logger.error(error.message);
+				res.status(500).json({ message: error.message });
 			});
 	};
 }

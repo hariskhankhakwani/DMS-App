@@ -11,7 +11,7 @@ import {
 } from "../../../../app/errors/userErrors";
 import type { ILogger } from "../../../../app/ports/logger/ILogger";
 // biome-ignore lint/style/useImportType: <explanation>
-import { User } from "../../../../domain/aggregate/User";
+import { User } from "../../../../domain/entities/User";
 import type { IUserRepository } from "../../../../domain/repositories/IUserRepository";
 import type { RoleType } from "../../../../domain/valueObjects/Role";
 import { TYPES } from "../../../di/inversify/types";

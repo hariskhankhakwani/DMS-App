@@ -19,150 +19,220 @@ export class DocumentController {
 			res.status(400).json({ message: "No file uploaded" });
 			return;
 		}
-		Effect.runPromise(
-			this.documentService.uploadDocument(
-				req.body,
-				req.body.loggedInUserId,
-				req.body.loggedInUserRole,
-			),
-		)
-			.then((document) => {
+		const response = this.documentService.uploadDocument(
+			req.body,
+			req.body.loggedInUserId,
+			req.body.loggedInUserRole,
+		);
+		const responseMatch = Effect.match(response, {
+			onSuccess: (document) => {
 				this.logger.info("Document uploaded successfully");
-				res.status(201).json({
+				return {
+					code: 201,
 					message: "Document uploaded successfully",
 					data: document,
+				};
+			},
+			onFailure: (error) => {
+				this.logger.error("failed to upload document");
+				return {
+					code: error.code,
+					message: error.message,
+					data: error,
+				};
+			},
+		});
+		Effect.runPromise(responseMatch)
+			.then((resp) => {
+				this.logger.info(resp.message);
+				res.status(resp.code).json({
+					message: resp.message,
+					data: resp.data,
 				});
 			})
-			.catch((error: FiberFailure) => {
-				this.logger.error("failed to upload document");
-				if (error.name.split(" ")[1] === "DocumentAlreadyExistsError") {
-					res.status(409).json({ message: error.message });
-					return;
-				}
-				if (error.name.split(" ")[1] === "UnauthorizedUserError") {
-					this.logger.error("Unauthorized user error");
-					res.status(403).json({ message: error.message });
-					return;
-				}
-
+			.catch((error) => {
+				this.logger.error(error.message);
 				res.status(500).json({ message: error.message });
-				return;
 			});
 	};
 
 	getAllDocuments = async (req: Request, res: Response) => {
-		Effect.runPromise(this.documentService.getAllDocuments())
-			.then((documents) => {
+		const response = this.documentService.getAllDocuments();
+		const responseMatch = Effect.match(response, {
+			onSuccess: (documents) => {
 				this.logger.info("Documents retrieved successfully");
-				res.status(200).json({
+				return {
+					code: 200,
 					message: "Documents retrieved successfully",
 					data: documents,
+				};
+			},
+			onFailure: (error) => {
+				this.logger.error("failed to retrieve documents");
+				return {
+					code: error.code,
+					message: error.message,
+					data: error,
+				};
+			},
+		});
+		Effect.runPromise(responseMatch)
+			.then((resp) => {
+				this.logger.info(resp.message);
+				res.status(resp.code).json({
+					message: resp.message,
+					data: resp.data,
 				});
 			})
-			.catch((error: FiberFailure) => {
-				this.logger.error("failed to retrieve documents");
-				res.status(404).json({ message: error.message });
-				return;
+			.catch((error) => {
+				this.logger.error(error.message);
+				res.status(500).json({ message: error.message });
 			});
 	};
 
 	deleteDocument = async (req: Request, res: Response) => {
-		Effect.runPromise(
-			this.documentService.deleteDocument(
-				req.body,
-				req.body.loggedInUserId,
-				req.body.loggedInUserRole,
-			),
-		)
-			.then((document) => {
+		const response = this.documentService.deleteDocument(
+			req.body,
+			req.body.loggedInUserId,
+			req.body.loggedInUserRole,
+		);
+		const responseMatch = Effect.match(response, {
+			onSuccess: (document) => {
 				this.logger.info("Document deleted successfully");
-				res.status(200).json({
+				return {
+					code: 200,
 					message: "Document deleted successfully",
 					data: document,
+				};
+			},
+			onFailure: (error) => {
+				this.logger.error("failed to delete document");
+				return {
+					code: error.code,
+					message: error.message,
+					data: error,
+				};
+			},
+		});
+		Effect.runPromise(responseMatch)
+			.then((resp) => {
+				this.logger.info(resp.message);
+				res.status(resp.code).json({
+					message: resp.message,
+					data: resp.data,
 				});
 			})
-			.catch((error: FiberFailure) => {
-				this.logger.error("failed to delete document");
+			.catch((error) => {
+				this.logger.error(error.message);
 				res.status(500).json({ message: error.message });
-				return;
 			});
 	};
 
 	getAllDocumentsByCreatorId = async (req: Request, res: Response) => {
-		Effect.runPromise(
-			this.documentService.getAllDocumentsByCreatorId(
-				req.body,
-				req.body.loggedInUserRole,
-			),
-		)
-			.then((documents) => {
+		const response = this.documentService.getAllDocumentsByCreatorId(
+			req.body,
+			req.body.loggedInUserRole,
+		);
+		const responseMatch = Effect.match(response, {
+			onSuccess: (documents) => {
 				this.logger.info("Documents retrieved successfully");
-				res.status(200).json({
+				return {
+					code: 200,
 					message: "Documents retrieved successfully",
 					data: documents,
+				};
+			},
+			onFailure: (error) => {
+				this.logger.error("failed to retrieve documents by creator id");
+				return {
+					code: error.code,
+					message: error.message,
+					data: error,
+				};
+			},
+		});
+		Effect.runPromise(responseMatch)
+			.then((resp) => {
+				this.logger.info(resp.message);
+				res.status(resp.code).json({
+					message: resp.message,
+					data: resp.data,
 				});
 			})
-			.catch((error: FiberFailure) => {
-				this.logger.error("failed to retrieve documents by creator id");
-				if (error.name.split(" ")[1] === "DocumentNotFoundError") {
-					res.status(404).json({ message: error.message });
-					return;
-				}
-				if (error.name.split(" ")[1] === "UnauthorizedUserError") {
-					res.status(403).json({ message: error.message });
-					return;
-				}
+			.catch((error) => {
+				this.logger.error(error.message);
 				res.status(500).json({ message: error.message });
-				return;
 			});
 	};
 
 	updateDocumentTags = async (req: Request, res: Response) => {
-		Effect.runPromise(
-			this.documentService.updateDocumentTags(
-				req.body,
-				req.body.loggedInUserRole,
-			),
-		)
-			.then((document) => {
+		const response = this.documentService.updateDocumentTags(
+			req.body,
+			req.body.loggedInUserRole,
+		);
+		const responseMatch = Effect.match(response, {
+			onSuccess: (document) => {
 				this.logger.info("Document tags updated successfully");
-				res.status(200).json({
+				return {
+					code: 200,
 					message: "Document tags updated successfully",
 					data: document,
+				};
+			},
+			onFailure: (error) => {
+				this.logger.error("failed to update document tags");
+				return {
+					code: error.code,
+					message: error.message,
+					data: error,
+				};
+			},
+		});
+		Effect.runPromise(responseMatch)
+			.then((resp) => {
+				this.logger.info(resp.message);
+				res.status(resp.code).json({
+					message: resp.message,
+					data: resp.data,
 				});
 			})
-			.catch((error: FiberFailure) => {
-				this.logger.error("failed to update document tags");
-				if (error.name.split(" ")[1] === "DocumentNotFoundError") {
-					res.status(404).json({ message: error.message });
-					return;
-				}
-				if (error.name.split(" ")[1] === "DocumentAlreadyHasTagsError") {
-					res.status(409).json({ message: error.message });
-					return;
-				}
+			.catch((error) => {
+				this.logger.error(error.message);
 				res.status(500).json({ message: error.message });
-				return;
 			});
 	};
 
 	getAllDocumentsByTag = async (req: Request, res: Response) => {
-		Effect.runPromise(this.documentService.getAllDocumentsByTag(req.body))
-			.then((documents) => {
+		const response = this.documentService.getAllDocumentsByTag(req.body);
+		const responseMatch = Effect.match(response, {
+			onSuccess: (documents) => {
 				this.logger.info("Documents retrieved successfully by tag");
-				res.status(200).json({
+				return {
+					code: 200,
 					message: "Documents retrieved successfully by tag",
 					data: documents,
+				};
+			},
+			onFailure: (error) => {
+				this.logger.error("failed to retrieve documents by tag");
+				return {
+					code: error.code,
+					message: error.message,
+					data: error,
+				};
+			},
+		});
+		Effect.runPromise(responseMatch)
+			.then((resp) => {
+				this.logger.info(resp.message);
+				res.status(resp.code).json({
+					message: resp.message,
+					data: resp.data,
 				});
 			})
-			.catch((error: FiberFailure) => {
-				this.logger.error("failed to retrieve documents by tag");
-				if (error.name.split(" ")[1] === "DocumentNotFoundError") {
-					res.status(404).json({ message: error.message });
-					return;
-				}
+			.catch((error) => {
+				this.logger.error(error.message);
 				res.status(500).json({ message: error.message });
-				return;
 			});
 	};
 }

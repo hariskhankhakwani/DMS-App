@@ -5,6 +5,7 @@ import {
 	IsNotEmpty,
 	IsOptional,
 	IsString,
+	IsUUID,
 	ValidateNested,
 } from "class-validator";
 import { FileFormat } from "../../infra/storage/fileTypes";
@@ -56,14 +57,14 @@ export class DeleteDocumentRequest {
 export class GetAllDocumentsByCreatorIdRequest {
 	@Expose()
 	@IsNotEmpty()
-	@IsString()
+	@IsUUID()
 	creatorId: string;
 }
 
 export class UpdateDocumentTagsRequest {
 	@Expose()
 	@IsNotEmpty()
-	@IsString()
+	@IsUUID()
 	documentId: string;
 
 	@Expose()
