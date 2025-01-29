@@ -37,29 +37,29 @@ export class LocalStorage implements IStorage {
 
 		const filePath = createFilePath(fileName, fileExtension);
 		return Effect.tryPromise({
-			try: async (signal: AbortSignal) => {
-				await fs.writeFile(filePath, new Uint8Array(file.buffer));
+			try: () => {
+				const writeFile = fs.writeFile(filePath, new Uint8Array(file.buffer));
 				this.logger.info(`File uploaded successfully: ${filePath}`);
-				return filePath;
+				return writeFile;
 			},
 			catch: (error) => {
 				this.logger.error(`failed to upload file: ${error}`);
 				return new FileUploadError(`failed to upload file: ${error}`);
 			},
-		});
+		}).pipe(Effect.map((writeFile) => filePath));
 	}
 
 	deleteFile(filePath: string): Effect.Effect<boolean, FileDeletionError> {
 		return Effect.tryPromise({
-			try: async (signal: AbortSignal) => {
-				await fs.unlink(filePath);
+			try: () => {
+				const unlink = fs.unlink(filePath);
 				this.logger.info(`File deleted successfully: ${filePath}`);
-				return true;
+				return unlink;
 			},
 			catch: (error) => {
 				this.logger.error(`failed to delete file: ${error}`);
 				return new FileDeletionError(`failed to delete file: ${error}`);
 			},
-		});
+		}).pipe(Effect.map((unlink) => true));
 	}
 }
