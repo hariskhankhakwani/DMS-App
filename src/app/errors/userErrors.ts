@@ -105,3 +105,12 @@ export class UserAlreadyHasRoleError extends BaseUserError {
 		this.code = 400;
 	}
 }
+
+export class NoAdminsFoundError extends BaseUserError {
+	_tag = "NoAdminsFoundError";
+	constructor(message = "No admins found") {
+		super(message);
+		this.name = "NoAdminsFoundError";
+		this.code = 404;
+	}
+}

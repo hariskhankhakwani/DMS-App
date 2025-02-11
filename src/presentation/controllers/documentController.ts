@@ -235,4 +235,41 @@ export class DocumentController {
 				res.status(500).json({ message: error.message });
 			});
 	};
+
+	emailDocuments = async (req: Request, res: Response) => {
+		const response = this.documentService.emailDocuments(
+			req.body,
+			req.body.loggedInUserRole,
+		);
+		const responseMatch = Effect.match(response, {
+			onSuccess: (documents) => {
+				this.logger.info("Documents emailed successfully");
+				return {
+					code: 200,
+					message: "Documents emailed successfully",
+					data: documents,
+				};
+			},
+			onFailure: (error) => {
+				this.logger.error("failed to email documents");
+				return {
+					code: error.code,
+					message: error.message,
+					data: error,
+				};
+			},
+		});
+		Effect.runPromise(responseMatch)
+			.then((resp) => {
+				this.logger.info(resp.message);
+				res.status(resp.code).json({
+					message: resp.message,
+					data: resp.data,
+				});
+			})
+			.catch((error) => {
+				this.logger.error(error.message);
+				res.status(500).json({ message: error.message });
+			});
+	};
 }

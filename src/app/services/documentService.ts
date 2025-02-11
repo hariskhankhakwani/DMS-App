@@ -4,11 +4,15 @@ import { Effect, Option, pipe } from "effect";
 import { effectContext } from "effect/Layer";
 import { injectable } from "inversify";
 import { DocumentItem } from "../../domain/entities/Document";
+import type { User } from "../../domain/entities/User";
 import type { IDocumentRepository } from "../../domain/repositories/IDocumentRespository";
+import type { IUserRepository } from "../../domain/repositories/IUserRepository";
 import { RoleType } from "../../domain/valueObjects/Role";
 import { TYPES } from "../../infra/di/inversify/types";
+import type { SendEmailParams } from "../../shared/types";
 import type {
 	DeleteDocumentRequest,
+	EmailDocumentsRequest,
 	GetAllDocumentsByCreatorIdRequest,
 	GetAllDocumentsByTagRequest,
 	UpdateDocumentTagsRequest,
@@ -19,9 +23,15 @@ import {
 	DocumentAlreadyHasTagsError,
 	DocumentDeletionError,
 	DocumentNotFoundError,
+	type DocumentRetrievalError,
 	DocumentUpdateError,
 } from "../errors/docErrors";
-import { UnauthorizedUserError } from "../errors/userErrors";
+import type { EmailSendingError } from "../errors/emailErrors";
+import {
+	NoAdminsFoundError,
+	UnauthorizedUserError,
+} from "../errors/userErrors";
+import type { IEmail } from "../ports/email/IEmail";
 import type { ILogger } from "../ports/logger/ILogger";
 import type { IStorage } from "../ports/storage/IStorage";
 
@@ -30,15 +40,21 @@ export class DocumentService {
 	private documentRepository: IDocumentRepository;
 	private logger: ILogger;
 	private storage: IStorage;
+	private userRepository: IUserRepository;
+	private emailService: IEmail;
 	constructor(
 		@inject(TYPES.ILogger) logger: ILogger,
 		@inject(TYPES.IDocumentItemRepository)
 		documentRepository: IDocumentRepository,
 		@inject(TYPES.IStorage) storage: IStorage,
+		@inject(TYPES.IUserRepository) userRepository: IUserRepository,
+		@inject(TYPES.IEmail) emailService: IEmail,
 	) {
 		this.documentRepository = documentRepository;
 		this.logger = logger;
 		this.storage = storage;
+		this.userRepository = userRepository;
+		this.emailService = emailService;
 	}
 
 	uploadDocument(
@@ -261,5 +277,79 @@ export class DocumentService {
 		);
 
 		return documentUpdate;
+	}
+
+	_fetchUserDocs(loggedInUserRole: string) {
+		if (loggedInUserRole !== RoleType.ADMIN) {
+			this.logger.info("User is not an admin");
+			return Effect.fail(new UnauthorizedUserError());
+		}
+
+		const documentAdmins = this.userRepository.getAllAdmins();
+
+		const adminsRetrieval = documentAdmins.pipe(
+			Effect.flatMap((admins) => {
+				if (admins.length === 0) {
+					this.logger.info("No admins found");
+					return Effect.fail(new NoAdminsFoundError());
+				}
+				this.logger.info("Admins retrieved successfully");
+				return Effect.succeed(admins.map((admin) => admin.serialize()));
+			}),
+		);
+
+		const fetchedUserDocs = adminsRetrieval.pipe(
+			Effect.flatMap((admins) => {
+				const fetchedUserDocs: Effect.Effect<
+					{ userEmail: string; docs: DocumentItem[] },
+					DocumentRetrievalError
+				>[] = [];
+				for (const admin of admins) {
+					const documents = this.documentRepository.getAllByCreatorId(admin.id);
+					this.logger.info("Documents found for admin");
+					const userDocs = documents.pipe(
+						Effect.map((docs) => ({ userEmail: admin.email, docs })),
+					);
+					fetchedUserDocs.push(userDocs);
+				}
+				return Effect.all(fetchedUserDocs);
+			}),
+		);
+		return fetchedUserDocs;
+	}
+
+	emailDocuments(
+		emailDocumentsRequest: EmailDocumentsRequest,
+		loggedInUserRole: string,
+	) {
+		const fetchedUserDocs = this._fetchUserDocs(loggedInUserRole);
+		const emailDocuments = pipe(
+			Effect.all([fetchedUserDocs]),
+			Effect.andThen(([userDocs]) => {
+				return Effect.forEach(
+					userDocs,
+					(userDoc) => {
+						return Effect.forEach(
+							userDoc.docs,
+							(doc) => {
+								const emailParams: SendEmailParams = {
+									to: userDoc.userEmail,
+									body: {
+										filename: doc.getName(),
+									},
+								};
+								this.logger.info(
+									`Sending email to admin ${userDoc.userEmail} for document ${doc.getName()}`,
+								);
+								return this.emailService.simulateEmail(emailParams);
+							},
+							{ concurrency: emailDocumentsRequest.concurrency },
+						);
+					},
+					{ concurrency: emailDocumentsRequest.concurrency },
+				);
+			}),
+		);
+		return emailDocuments;
 	}
 }

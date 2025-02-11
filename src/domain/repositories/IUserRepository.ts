@@ -27,4 +27,6 @@ export interface IUserRepository {
 		userId: string,
 		role: RoleType,
 	): Effect.Effect<number, UserUpdateRoleError, never>;
+
+	getAllAdmins(): Effect.Effect<User[], UserRetrievalError, never>;
 }

@@ -18,3 +18,10 @@ export interface FileObject {
 	buffer: Buffer;
 	size: number;
 }
+
+export interface SendEmailParams {
+	to: string;
+	body: {
+		filename: string;
+	};
+}

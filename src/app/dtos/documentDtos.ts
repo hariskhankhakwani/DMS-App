@@ -8,6 +8,7 @@ import {
 	IsUUID,
 	ValidateNested,
 } from "class-validator";
+import type { Concurrency } from "effect/Types";
 import { FileFormat } from "../../infra/storage/fileTypes";
 import type { FileObject } from "../../shared/types";
 
@@ -16,11 +17,6 @@ export class UploadDocumentRequest {
 	@IsNotEmpty()
 	@IsString()
 	name: string;
-
-	// @Expose()
-	// @IsNotEmpty()
-	// @IsString()
-	// path: string;
 
 	@Expose()
 	@IsArray()
@@ -78,4 +74,10 @@ export class GetAllDocumentsByTagRequest {
 	@IsNotEmpty()
 	@IsString()
 	tag: string;
+}
+
+export class EmailDocumentsRequest {
+	@Expose()
+	@IsNotEmpty()
+	concurrency: Concurrency;
 }

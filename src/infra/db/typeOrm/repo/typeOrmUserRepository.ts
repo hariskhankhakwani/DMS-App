@@ -13,7 +13,7 @@ import type { ILogger } from "../../../../app/ports/logger/ILogger";
 // biome-ignore lint/style/useImportType: <explanation>
 import { User } from "../../../../domain/entities/User";
 import type { IUserRepository } from "../../../../domain/repositories/IUserRepository";
-import type { RoleType } from "../../../../domain/valueObjects/Role";
+import { RoleType } from "../../../../domain/valueObjects/Role";
 import { TYPES } from "../../../di/inversify/types";
 import { AppDataSource } from "../dataSource";
 import { UserMapper } from "../mapper/userMapper";
@@ -114,6 +114,19 @@ export class typeOrmUserRepository implements IUserRepository {
 			},
 			catch: (error) => {
 				this.logger.error("failed to retrieve all users");
+				return new UserRetrievalError();
+			},
+		}).pipe(Effect.map((userModels) => UserMapper.toDomainMany(userModels)));
+	}
+
+	getAllAdmins(): Effect.Effect<User[], UserRetrievalError, never> {
+		return Effect.tryPromise({
+			try: () => {
+				const admins = this.userModel.find({ where: { role: RoleType.ADMIN } });
+				return admins;
+			},
+			catch: (error) => {
+				this.logger.error("failed to retrieve all admins");
 				return new UserRetrievalError();
 			},
 		}).pipe(Effect.map((userModels) => UserMapper.toDomainMany(userModels)));

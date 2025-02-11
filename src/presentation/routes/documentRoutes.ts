@@ -2,6 +2,7 @@ import { Router } from "express";
 import multer from "multer";
 import {
 	DeleteDocumentRequest,
+	EmailDocumentsRequest,
 	GetAllDocumentsByCreatorIdRequest,
 	GetAllDocumentsByTagRequest,
 	UpdateDocumentTagsRequest,
@@ -53,6 +54,13 @@ router.post(
 	"/fetchAllByTag",
 	validationMiddleware(GetAllDocumentsByTagRequest),
 	documentController.getAllDocumentsByTag,
+);
+
+router.post(
+	"/emailDocuments",
+	validationMiddleware(EmailDocumentsRequest),
+	authMiddleware,
+	documentController.emailDocuments,
 );
 
 export default router;

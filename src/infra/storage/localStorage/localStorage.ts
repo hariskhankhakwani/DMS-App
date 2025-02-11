@@ -62,4 +62,14 @@ export class LocalStorage implements IStorage {
 			},
 		}).pipe(Effect.map((unlink) => true));
 	}
+
+	getFile(filePath: string): Effect.Effect<Buffer, FileRetrievalError> {
+		return Effect.tryPromise({
+			try: () => fs.readFile(filePath),
+			catch: (error) => {
+				this.logger.error(`failed to retrieve file: ${error}`);
+				return new FileRetrievalError(`failed to retrieve file: ${error}`);
+			},
+		});
+	}
 }
