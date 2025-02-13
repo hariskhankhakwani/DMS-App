@@ -6,9 +6,9 @@ import {
 	UpdateUserRoleRequest,
 } from "../../app/dtos/userDtos";
 import container from "../../infra/di/inversify/inversify.config";
-import { UserController } from "../controllers/userController";
-import { authMiddleware } from "../middleware/authMiddleware";
-import { validationMiddleware } from "../middleware/validationMiddleware";
+import { UserController } from "../http/controllers/userController";
+import { authMiddleware } from "../http/middleware/authMiddleware";
+import { validationMiddleware } from "../http/middleware/validationMiddleware";
 
 const router = Router();
 const userController = container.get<UserController>(UserController);

@@ -2,18 +2,18 @@ import { Effect, Either } from "effect";
 import { NoSuchElementException } from "effect/Cause";
 import type { NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
-import { RegisterUserRequest } from "../../app/dtos/userDtos";
-import type { HashGenerationError } from "../../app/errors/hashErrors";
-import type { JwtGenerationError } from "../../app/errors/jwtError";
+import { RegisterUserRequest } from "../../../app/dtos/userDtos";
+import type { HashGenerationError } from "../../../app/errors/hashErrors";
+import type { JwtGenerationError } from "../../../app/errors/jwtError";
 import type {
 	IncorrectPasswordError,
 	UserAlreadyExistsError,
 	UserCreationError,
 	UserNotFoundError,
-} from "../../app/errors/userErrors";
-import type { ILogger } from "../../app/ports/logger/ILogger";
-import type { UserService } from "../../app/services/userService";
-import { TYPES } from "../../infra/di/inversify/types";
+} from "../../../app/errors/userErrors";
+import type { ILogger } from "../../../app/ports/logger/ILogger";
+import type { UserService } from "../../../app/services/userService";
+import { TYPES } from "../../../infra/di/inversify/types";
 
 @injectable()
 export class UserController {

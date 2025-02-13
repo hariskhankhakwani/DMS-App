@@ -1,5 +1,4 @@
 import express from "express";
-import { AppDataSource } from "../infra/db/typeOrm/dataSource";
 import { errorMiddleware } from "./middleware/errorMiddleware";
 import documentRoutes from "./routes/documentRoutes";
 import userRoutes from "./routes/userRoutes";

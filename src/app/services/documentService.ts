@@ -1,5 +1,6 @@
 import { inject } from "inversify";
 
+import { eachLimit } from "async";
 import { Effect, Option, pipe } from "effect";
 import { effectContext } from "effect/Layer";
 import { injectable } from "inversify";
@@ -38,10 +39,10 @@ import type { IStorage } from "../ports/storage/IStorage";
 @injectable()
 export class DocumentService {
 	private documentRepository: IDocumentRepository;
-	private logger: ILogger;
+	logger: ILogger;
 	private storage: IStorage;
 	private userRepository: IUserRepository;
-	private emailService: IEmail;
+	emailService: IEmail;
 	constructor(
 		@inject(TYPES.ILogger) logger: ILogger,
 		@inject(TYPES.IDocumentItemRepository)
@@ -351,5 +352,23 @@ export class DocumentService {
 			}),
 		);
 		return emailDocuments;
+	}
+
+	async emailDocsAsync(concurrency: number) {
+		const response = await Effect.runPromise(this._fetchUserDocs("admin"));
+
+		await eachLimit(response, concurrency, async (userDoc) => {
+			await eachLimit(userDoc.docs, concurrency, async (doc) => {
+				this.logger.info(
+					`Sending email to admin ${userDoc.userEmail} for document ${doc.getName()}`,
+				);
+				return await this.emailService.simulateEmailWithoutEffect({
+					to: userDoc.userEmail,
+					body: {
+						filename: doc.getName(),
+					},
+				});
+			});
+		});
 	}
 }

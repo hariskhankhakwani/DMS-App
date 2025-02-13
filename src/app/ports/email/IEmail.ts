@@ -9,4 +9,6 @@ export interface IEmail {
 	simulateEmail(
 		params: SendEmailParams,
 	): Effect.Effect<boolean, EmailSendingError, never>;
+
+	simulateEmailWithoutEffect(params: SendEmailParams): Promise<boolean>;
 }

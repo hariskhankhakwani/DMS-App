@@ -18,7 +18,7 @@ export class MockEmail implements IEmail {
 	simulateEmail(
 		params: SendEmailParams,
 	): Effect.Effect<boolean, EmailSendingError, never> {
-		return Effect.try({
+		return Effect.tryPromise({
 			try: () => {
 				// this.logger.info(`Sending email to ${params.to}`);
 				// const filePath = `${process.env.EMAIL_STORAGE_PATH}/${params.to}/${params.body.filename}`;
@@ -26,14 +26,29 @@ export class MockEmail implements IEmail {
 				// 	filePath,
 				// 	new Uint8Array(params.body.attachment),
 				// );
-				this.logger.info(`Mock Email sucessfully sent to ${params.to}`);
-				return true;
+				const x = new Promise((resolve) => setTimeout(resolve, 10000));
+				return x;
 			},
 			catch: (error) => {
-				this.logger.error(`Failed to send email to ${params.to}`);
+				this.logger.error(`Failed to send email to ${params.to} ${error}`);
 				return new EmailSendingError();
 			},
-		}).pipe(Effect.as(true));
+		}).pipe(
+			Effect.map(() => {
+				this.logger.info(
+					`Mock Email sucessfully sent to ${params.to} for document ${params.body.filename}`,
+				);
+				return true;
+			}),
+		);
+	}
+
+	async simulateEmailWithoutEffect(params: SendEmailParams) {
+		await new Promise((resolve) => setTimeout(resolve, 10000));
+		this.logger.info(
+			`Mock Email sucessfully sent to ${params.to} for document ${params.body.filename}`,
+		);
+		return true;
 	}
 
 	// sendEmail(emailParams: SendEmailParams[], mode = "seq") {

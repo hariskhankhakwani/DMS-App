@@ -9,9 +9,9 @@ import {
 	UploadDocumentRequest,
 } from "../../app/dtos/documentDtos";
 import container from "../../infra/di/inversify/inversify.config";
-import { DocumentController } from "../controllers/documentController";
-import { authMiddleware } from "../middleware/authMiddleware";
-import { validationMiddleware } from "../middleware/validationMiddleware";
+import { DocumentController } from "../http/controllers/documentController";
+import { authMiddleware } from "../http/middleware/authMiddleware";
+import { validationMiddleware } from "../http/middleware/validationMiddleware";
 
 const upload = multer({
 	storage: multer.memoryStorage(),

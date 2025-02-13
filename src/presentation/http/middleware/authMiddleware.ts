@@ -2,10 +2,10 @@ import { Effect } from "effect";
 import type { FiberFailure } from "effect/Runtime";
 import type { NextFunction, Request, Response } from "express";
 import type { JwtPayload } from "jsonwebtoken";
-import { JwtError, JwtVerificationError } from "../../app/errors/jwtError";
-import type { IJwt } from "../../app/ports/jwt/IJwt";
-import container from "../../infra/di/inversify/inversify.config";
-import { TYPES } from "../../infra/di/inversify/types";
+import { JwtError, JwtVerificationError } from "../../../app/errors/jwtError";
+import type { IJwt } from "../../../app/ports/jwt/IJwt";
+import container from "../../../infra/di/inversify/inversify.config";
+import { TYPES } from "../../../infra/di/inversify/types";
 
 const jwtService = container.get<IJwt>(TYPES.IJwt);
 

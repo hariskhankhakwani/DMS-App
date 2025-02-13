@@ -2,9 +2,9 @@ import { Effect } from "effect";
 import type { FiberFailure } from "effect/Runtime";
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
-import type { ILogger } from "../../app/ports/logger/ILogger";
-import type { DocumentService } from "../../app/services/documentService";
-import { TYPES } from "../../infra/di/inversify/types";
+import type { ILogger } from "../../../app/ports/logger/ILogger";
+import type { DocumentService } from "../../../app/services/documentService";
+import { TYPES } from "../../../infra/di/inversify/types";
 
 @injectable()
 export class DocumentController {
