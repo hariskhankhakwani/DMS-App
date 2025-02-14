@@ -1,44 +1,59 @@
+import { implement } from "@orpc/server";
 import { Router } from "express";
-import {
-	DeleteUserRequest,
-	LoginUserRequest,
-	RegisterUserRequest,
-	UpdateUserRoleRequest,
-} from "../../app/dtos/userDtos";
-import container from "../../infra/di/inversify/inversify.config";
-import { UserController } from "../http/controllers/userController";
-import { authMiddleware } from "../http/middleware/authMiddleware";
-import { validationMiddleware } from "../http/middleware/validationMiddleware";
+import container from "../../../infra/di/inversify/inversify.config";
+import { userContract } from "../contracts/userContract";
+import { UserController } from "../controllers/userController";
+import { authMiddleware } from "../middleware/authMiddleware";
+import { validationMiddleware } from "../middleware/validationMiddleware";
 
-const router = Router();
 const userController = container.get<UserController>(UserController);
 
-router.post(
-	"/register",
-	validationMiddleware(RegisterUserRequest),
-	userController.registerUser,
-);
+const pub = implement(userContract);
 
-router.post(
-	"/login",
-	validationMiddleware(LoginUserRequest),
-	userController.loginUser,
-);
+export const userRouter = pub.router({
+	register: pub.register.handler(async ({ input, context }) => {
+		const result = await userController.registerUser(input);
+		return {
+			message: result.message,
+			data: result.data,
+		};
+	}),
 
-router.get("/fetchAll", authMiddleware, userController.getAllUsers);
+	login: pub.login.handler(async ({ input, context }) => {
+		const result = await userController.loginUser(input);
+		return {
+			message: result.message,
+			data: result.data,
+		};
+	}),
 
-router.delete(
-	"/delete",
-	validationMiddleware(DeleteUserRequest),
-	authMiddleware,
-	userController.deleteUser,
-);
+	// getAllUsers: authed.getAllUsers.handler(async ({ input, context }) => {
+	// 	const result = await userController.getAllUsers(context.req, context.res);
+	// 	return {
+	// 		message: "Users retrieved successfully",
+	// 		data: result.data
+	// 	};
+	// }),
 
-router.post(
-	"/updateRole",
-	validationMiddleware(UpdateUserRoleRequest),
-	authMiddleware,
-	userController.updateUserRole,
-);
+	// deleteUser: authed.deleteUser.handler(async ({ input, context }) => {
+	// 	const result = await userController.deleteUser(context.req, context.res);
+	// 	return {
+	// 		message: "User deleted successfully",
+	// 		data: result.data
+	// 	};
+	// }),
 
-export default router;
+	// updateRole: authed.updateRole.handler(async ({ input, context }) => {
+	// 	const result = await userController.updateUserRole(context.req, context.res);
+	// 	return {
+	// 		message: "Role updated successfully",
+	// 		data: result.data
+	// 	};
+	// })
+	//
+});
+
+// // Mount the router
+// router.use("/", userRouter);
+
+export default userRouter;

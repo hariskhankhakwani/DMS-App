@@ -9,7 +9,6 @@ import {
 	ValidateNested,
 } from "class-validator";
 import type { Concurrency } from "effect/Types";
-import { FileFormat } from "../../infra/storage/fileTypes";
 import type { FileObject } from "../../shared/types";
 
 export class UploadDocumentRequest {
