@@ -12,6 +12,7 @@ import container from "../../../infra/di/inversify/inversify.config";
 import { documentContract } from "../contracts/documentContract";
 import { DocumentController } from "../controllers/documentController";
 import { authMiddleware } from "../middleware/authMiddleware";
+import { orpcAuthMiddleware } from "../middleware/orpcMiddlewares";
 import { validationMiddleware } from "../middleware/validationMiddleware";
 
 const upload = multer({
@@ -25,15 +26,16 @@ const documentController =
 	container.get<DocumentController>(DocumentController);
 
 const pub = implement(documentContract);
-
 export const documentRouter = pub.router({
-	getDocuments: pub.getDocuments.handler(async ({ input, context }) => {
-		const result = await documentController.getAllDocuments();
-		return {
-			message: result.message,
-			data: result.data,
-		};
-	}),
+	getDocuments: pub.getDocuments
+		.use(orpcAuthMiddleware)
+		.handler(async ({ input, context }) => {
+			const result = await documentController.getAllDocuments();
+			return {
+				message: result.message,
+				data: result.data,
+			};
+		}),
 });
 
 export default documentRouter;

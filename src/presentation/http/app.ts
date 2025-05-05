@@ -11,12 +11,14 @@ import { userContract } from "./contracts/userContract";
 import { errorMiddleware } from "./middleware/errorMiddleware";
 import documentRoutes, { documentRouter } from "./routes/documentRoutes";
 import userRoutes, { userRouter } from "./routes/userRoutes";
+import type { APIContext } from "./types";
 const openAPIGenerator = new OpenAPIGenerator({
 	schemaConverters: [new ZodToJsonSchemaConverter()],
 });
+
 const app = express();
 
-const apiRouter = os.router({
+const apiRouter = os.$context<APIContext>().router({
 	user: userRouter,
 	document: documentRouter,
 });
@@ -28,7 +30,7 @@ const apiOpenAPIHandler = new OpenAPIHandler(apiRouter, {
 app.use("/api/*", async (req, res, next) => {
 	const { matched } = await apiOpenAPIHandler.handle(req, res, {
 		prefix: "/api",
-		context: {},
+		context: { headers: req.headers as Record<string, string> },
 	});
 
 	if (matched) {
@@ -43,7 +45,7 @@ const rpcHandler = new RPCHandler(apiRouter);
 app.use("/rpc/*", async (req, res, next) => {
 	const { matched } = await rpcHandler.handle(req, res, {
 		prefix: "/rpc",
-		context: {},
+		context: { headers: req.headers as Record<string, string> },
 	});
 
 	if (matched) {
@@ -53,7 +55,7 @@ app.use("/rpc/*", async (req, res, next) => {
 	next();
 });
 
-const openApiDocumentUser = await openAPIGenerator.generate(apiRouter, {
+const openApiDocument = await openAPIGenerator.generate(apiRouter, {
 	info: {
 		title: "Document Management System API  Endpoints",
 		version: "1.0.0",
@@ -68,8 +70,19 @@ const openApiDocumentUser = await openAPIGenerator.generate(apiRouter, {
 			description: "Local development server",
 		},
 	],
+	components: {
+		securitySchemes: {
+			bearerAuth: {
+				type: "http",
+				scheme: "bearer",
+				bearerFormat: "JWT",
+				description: "Enter your bearer token in the format: Bearer <token>",
+			},
+		},
+	},
+	security: [{ bearerAuth: [] }], // This applies security globally
 });
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiDocumentUser));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiDocument));
 
 export default app;
